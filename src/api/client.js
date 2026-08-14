@@ -28,10 +28,23 @@ async function buildHeaders(auth = false, forceRefresh = false) {
 
 async function parseResponse(res) {
   let payload = null;
-  try {
-    payload = await res.json();
-  } catch {
-    // response had no JSON body
+  const contentType = res.headers.get('content-type') || '';
+  
+  if (contentType.includes('application/json')) {
+    try {
+      payload = await res.json();
+    } catch {
+      payload = null;
+    }
+  } else {
+    try {
+      const text = await res.text();
+      if (text && text.trim().startsWith('{')) {
+        payload = JSON.parse(text);
+      }
+    } catch {
+      payload = null;
+    }
   }
 
   if (!res.ok) {
