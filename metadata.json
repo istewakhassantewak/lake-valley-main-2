@@ -1,0 +1,8 @@
+{
+  "name": "Lake Valley Flower City",
+  "description": "Premium eco-friendly township & real estate platform featuring residential plots, duplex villas, resort booking management, and comprehensive client messages/inquiries admin portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

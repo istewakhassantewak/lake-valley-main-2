@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "333ffb50-ff15-40de-b1b4-bfd5ae302d58",
+    "name": "Test",
+    "email": "test@example.com",
+    "subject": "Run check",
+    "message": "Hello",
+    "status": "new",
+    "createdAt": "2026-08-04T07:30:56.157Z",
+    "updatedAt": "2026-08-04T07:30:56.157Z"
+  }
+]

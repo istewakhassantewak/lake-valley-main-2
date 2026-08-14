@@ -1,0 +1,26 @@
+{
+  "name": "lake-valley-backend",
+  "version": "1.0.0",
+  "description": "API for Lake Valley Flower City — booking & contact form storage",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "firebase-admin": "^13.0.0",
+    "helmet": "^8.0.0",
+    "mongoose": "^8.6.0",
+    "nodemailer": "^6.9.14"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

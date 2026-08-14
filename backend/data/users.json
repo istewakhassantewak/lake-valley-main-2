@@ -1,0 +1,31 @@
+[
+  {
+    "_id": "6a73b4ed4652606786a7add9",
+    "firebaseUid": "VpaeWSeTYVUkVPKo8VJ3qZ1UysI3",
+    "email": "lakevalleyistewak@gmail.com",
+    "displayName": "Lake Valley Istewak",
+    "photoURL": "",
+    "bannerURL": "",
+    "phone": "",
+    "dateOfBirth": null,
+    "gender": "",
+    "country": "Bangladesh",
+    "address": "",
+    "bio": "",
+    "provider": "email",
+    "role": "user",
+    "accountStatus": "active",
+    "lastLoginAt": "2026-08-05T23:05:53.148Z",
+    "socialLinks": {
+      "facebook": "",
+      "twitter": "",
+      "linkedin": "",
+      "instagram": ""
+    },
+    "createdAt": "2026-08-05T22:10:53.996Z",
+    "updatedAt": "2026-08-05T23:05:53.234Z",
+    "__v": 0,
+    "profileCompletion": 22,
+    "memberSince": "2026-08-05T22:10:53.996Z"
+  }
+]
