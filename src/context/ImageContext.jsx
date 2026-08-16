@@ -7,7 +7,10 @@ import {
   updateImageApi,
   deleteImageApi,
   resetImagesApi,
+  syncImagesToFirestore,
+  subscribeToImageChanges,
 } from '../api/imageApi';
+import { uploadAnyImageToFirebase } from '../firebase';
 
 const ImageContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'lv_managed_images_v1';
@@ -32,7 +35,7 @@ export function ImageProvider({ children }) {
 
   const [loading, setLoading] = useState(false);
 
-  // Sync to local storage whenever images change
+  // Sync to local storage & Firestore whenever images change
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(images));
@@ -41,7 +44,7 @@ export function ImageProvider({ children }) {
     }
   }, [images]);
 
-  // Sync with backend API on mount
+  // Sync with Firestore and backend API on mount + subscribe to live changes
   useEffect(() => {
     let isMounted = true;
     async function syncBackend() {
@@ -58,242 +61,187 @@ export function ImageProvider({ children }) {
       }
     }
     syncBackend();
+
+    // Real-time synchronization across all tabs and browsers
+    const unsubscribe = subscribeToImageChanges((liveImages) => {
+      if (isMounted && Array.isArray(liveImages) && liveImages.length > 0) {
+        setImages(liveImages);
+      }
+    });
+
     return () => {
       isMounted = false;
+      if (typeof unsubscribe === 'function') unsubscribe();
     };
   }, []);
 
-  // Upload image file (reads file as Base64, calls API and updates state)
+  // Upload image file (uploads to Firebase Storage / CDN, updates Firestore and state)
   const uploadImageFile = useCallback(async ({ file, title, category, alt, span, targetSection }) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.onload = async () => {
-        try {
-          const base64Data = reader.result;
-          let newImg;
+    let uploadedUrl = '';
+    try {
+      uploadedUrl = await uploadAnyImageToFirebase(file, 'gallery');
+    } catch (err) {
+      console.warn('Firebase storage upload failed, using file reader:', err);
+    }
 
-          try {
-            const apiRes = await uploadImageFileApi({
-              base64Data,
-              filename: file.name,
-              title: title || file.name.replace(/\.[^/.]+$/, ''),
-              category: category || 'Township',
-              alt: alt || title || file.name,
-              span: span || 'col-span-1 row-span-1',
-              targetSection: targetSection || 'gallery',
-            });
-            if (apiRes?.data) {
-              newImg = apiRes.data;
-            }
-          } catch {
-            // Fallback: use data URL locally
-          }
+    if (!uploadedUrl) {
+      uploadedUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
 
-          if (!newImg) {
-            newImg = {
-              id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-              src: base64Data,
-              title: title || file.name.replace(/\.[^/.]+$/, ''),
-              alt: alt || title || file.name,
-              category: category || 'Township',
-              span: span || 'col-span-1 row-span-1',
-              targetSection: targetSection || 'gallery',
-              createdAt: new Date().toISOString(),
-            };
-          }
+    const newImg = {
+      id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      src: uploadedUrl,
+      title: title || file.name.replace(/\.[^/.]+$/, ''),
+      alt: alt || title || file.name,
+      category: category || 'Township',
+      span: span || 'col-span-1 row-span-1',
+      targetSection: targetSection || 'gallery',
+      createdAt: new Date().toISOString(),
+    };
 
-          setImages((prev) => [newImg, ...prev]);
-          resolve(newImg);
-        } catch (err) {
-          reject(err);
-        }
-      };
-      reader.readAsDataURL(file);
+    setImages((prev) => {
+      const updated = [newImg, ...prev];
+      syncImagesToFirestore(updated);
+      return updated;
     });
+
+    // Also attempt backend call if server is running
+    try {
+      await uploadImageFileApi({
+        src: uploadedUrl,
+        filename: file.name,
+        title: newImg.title,
+        category: newImg.category,
+        alt: newImg.alt,
+        span: newImg.span,
+        targetSection: newImg.targetSection,
+      });
+    } catch {
+      // ignore
+    }
+
+    return newImg;
   }, []);
 
   // Add image by URL
   const addImageUrl = useCallback(async ({ src, title, category, alt, span, targetSection }) => {
-    let newImg;
+    const newImg = {
+      id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      src,
+      title: title || 'New Image',
+      alt: alt || title || 'New Image',
+      category: category || 'Township',
+      span: span || 'col-span-1 row-span-1',
+      targetSection: targetSection || 'gallery',
+      createdAt: new Date().toISOString(),
+    };
+
+    setImages((prev) => {
+      const updated = [newImg, ...prev];
+      syncImagesToFirestore(updated);
+      return updated;
+    });
+
     try {
-      const apiRes = await addImageApi({
+      await addImageApi({
         src,
+        title: newImg.title,
+        category: newImg.category,
+        alt: newImg.alt,
+        span: newImg.span,
+        targetSection: newImg.targetSection,
+      });
+    } catch {
+      // Fallback
+    }
+
+    return newImg;
+  }, []);
+
+  // Replace existing image file or URL
+  const replaceImage = useCallback(async (id, { file, src, title, category, alt, span, targetSection }) => {
+    let finalSrc = src;
+
+    if (file) {
+      try {
+        finalSrc = await uploadAnyImageToFirebase(file, 'gallery');
+      } catch {
+        finalSrc = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+      }
+    }
+
+    setImages((prev) => {
+      const updated = prev.map((img) =>
+        String(img.id) === String(id)
+          ? {
+              ...img,
+              ...(finalSrc ? { src: finalSrc } : {}),
+              title: title !== undefined ? title : img.title,
+              category: category !== undefined ? category : img.category,
+              alt: alt !== undefined ? alt : img.alt,
+              span: span !== undefined ? span : img.span,
+              targetSection: targetSection !== undefined ? targetSection : img.targetSection,
+              updatedAt: new Date().toISOString(),
+            }
+          : img
+      );
+      syncImagesToFirestore(updated);
+      return updated;
+    });
+
+    try {
+      await updateImageApi(id, {
+        ...(finalSrc ? { src: finalSrc } : {}),
         title,
         category,
         alt,
         span,
         targetSection,
       });
-      if (apiRes?.data) newImg = apiRes.data;
     } catch {
-      // Fallback
-    }
-
-    if (!newImg) {
-      newImg = {
-        id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-        src,
-        title: title || 'New Image',
-        alt: alt || title || 'New Image',
-        category: category || 'Township',
-        span: span || 'col-span-1 row-span-1',
-        targetSection: targetSection || 'gallery',
-        createdAt: new Date().toISOString(),
-      };
-    }
-
-    setImages((prev) => [newImg, ...prev]);
-    return newImg;
-  }, []);
-
-  // Replace existing image file or URL
-  const replaceImage = useCallback(async (id, { file, src, title, category, alt, span, targetSection }) => {
-    let updatedImg;
-
-    if (file) {
-      // Read file as base64
-      const base64Data = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
-
-      try {
-        const apiRes = await updateImageApi(id, {
-          base64Data,
-          title,
-          category,
-          alt,
-          span,
-          targetSection,
-        });
-        if (apiRes?.data) updatedImg = apiRes.data;
-      } catch {
-        // Fallback
-      }
-
-      if (!updatedImg) {
-        setImages((prev) =>
-          prev.map((img) =>
-            String(img.id) === String(id)
-              ? {
-                  ...img,
-                  src: base64Data,
-                  title: title !== undefined ? title : img.title,
-                  category: category !== undefined ? category : img.category,
-                  alt: alt !== undefined ? alt : img.alt,
-                  span: span !== undefined ? span : img.span,
-                  targetSection: targetSection !== undefined ? targetSection : img.targetSection,
-                  updatedAt: new Date().toISOString(),
-                }
-              : img
-          )
-        );
-        return;
-      }
-    } else if (src) {
-      try {
-        const apiRes = await updateImageApi(id, {
-          src,
-          title,
-          category,
-          alt,
-          span,
-          targetSection,
-        });
-        if (apiRes?.data) updatedImg = apiRes.data;
-      } catch {
-        // Fallback
-      }
-
-      if (!updatedImg) {
-        setImages((prev) =>
-          prev.map((img) =>
-            String(img.id) === String(id)
-              ? {
-                  ...img,
-                  src,
-                  title: title !== undefined ? title : img.title,
-                  category: category !== undefined ? category : img.category,
-                  alt: alt !== undefined ? alt : img.alt,
-                  span: span !== undefined ? span : img.span,
-                  targetSection: targetSection !== undefined ? targetSection : img.targetSection,
-                  updatedAt: new Date().toISOString(),
-                }
-              : img
-          )
-        );
-        return;
-      }
-    } else {
-      // Only metadata updates
-      try {
-        const apiRes = await updateImageApi(id, {
-          title,
-          category,
-          alt,
-          span,
-          targetSection,
-        });
-        if (apiRes?.data) updatedImg = apiRes.data;
-      } catch {
-        // Fallback
-      }
-
-      if (!updatedImg) {
-        setImages((prev) =>
-          prev.map((img) =>
-            String(img.id) === String(id)
-              ? {
-                  ...img,
-                  title: title !== undefined ? title : img.title,
-                  category: category !== undefined ? category : img.category,
-                  alt: alt !== undefined ? alt : img.alt,
-                  span: span !== undefined ? span : img.span,
-                  targetSection: targetSection !== undefined ? targetSection : img.targetSection,
-                  updatedAt: new Date().toISOString(),
-                }
-              : img
-          )
-        );
-        return;
-      }
-    }
-
-    if (updatedImg) {
-      setImages((prev) =>
-        prev.map((img) => (String(img.id) === String(id) ? updatedImg : img))
-      );
+      // ignore
     }
   }, []);
 
   // Delete image
   const deleteImage = useCallback(async (id) => {
+    setImages((prev) => {
+      const updated = prev.filter((img) => String(img.id) !== String(id));
+      syncImagesToFirestore(updated);
+      return updated;
+    });
+
     try {
       await deleteImageApi(id);
     } catch {
       // ignore
     }
-    setImages((prev) => prev.filter((img) => String(img.id) !== String(id)));
   }, []);
 
   // Reset to default gallery images
   const resetImagesToDefault = useCallback(async () => {
-    try {
-      await resetImagesApi();
-    } catch {
-      // ignore
-    }
     const defaults = defaultGalleryImages.map((img) => ({
       ...img,
       title: img.title || img.alt || 'Gallery Image',
       targetSection: img.targetSection || 'gallery',
     }));
+
     setImages(defaults);
+    syncImagesToFirestore(defaults);
+
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
+      await resetImagesApi();
     } catch {
       // ignore
     }

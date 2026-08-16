@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { fetchContentApi, updateContentApi, resetContentApi } from '../api/contentApi';
+import { fetchContentApi, updateContentApi, resetContentApi, subscribeToContentChanges } from '../api/contentApi';
 
 // Fallback default content in case backend call fails
 export const defaultContentState = {
@@ -419,6 +419,21 @@ export function ContentProvider({ children }) {
 
   useEffect(() => {
     loadContent();
+
+    // Subscribe to real-time live content updates across all browsers/devices
+    const unsubscribe = subscribeToContentChanges((liveContent) => {
+      if (liveContent && typeof liveContent === 'object' && Object.keys(liveContent).length > 0) {
+        setContent((prev) => ({
+          ...defaultContentState,
+          ...prev,
+          ...liveContent,
+        }));
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, [loadContent]);
 
   const updateSection = useCallback(async (section, newSectionData) => {

@@ -17,6 +17,7 @@ import {
   linkWithCredential,
 } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyAKqRzEcaJ4yc4nfV_Z-xHsgQt1KMDATKw',
@@ -40,6 +41,7 @@ if (missingKeys.length > 0 && import.meta.env.DEV) {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
@@ -309,6 +311,29 @@ export async function removeProfileImage() {
     console.warn('Firebase Auth remove photoURL warning:', err);
   }
   return true;
+}
+
+export async function uploadAnyImageToFirebase(file, folder = 'site-assets') {
+  if (!file) return null;
+  let processedFile = file;
+  if (file.size > 300 * 1024) {
+    try {
+      processedFile = await compressAndResizeImage(file, 1800, 0.85);
+    } catch {
+      // ignore
+    }
+  }
+
+  try {
+    const ext = (processedFile.name || 'image.jpg').split('.').pop() || 'jpg';
+    const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    const storageRef = ref(storage, `${folder}/${filename}`);
+    await uploadBytes(storageRef, processedFile, { contentType: processedFile.type || 'image/jpeg' });
+    return await getDownloadURL(storageRef);
+  } catch (err) {
+    console.warn('Firebase Storage upload failed, converting to optimized data URL fallback:', err);
+    return await fileToDataUrl(processedFile);
+  }
 }
 
 export { onAuthStateChanged };
