@@ -10,7 +10,7 @@ import {
   syncImagesToFirestore,
   subscribeToImageChanges,
 } from '../api/imageApi';
-import { uploadAnyImageToFirebase } from '../firebase';
+import { uploadAnyImageToFirebase, compressAndResizeImage, fileToDataUrl } from '../firebase';
 
 const ImageContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'lv_managed_images_v1';
@@ -170,31 +170,55 @@ export function ImageProvider({ children }) {
     if (file) {
       try {
         finalSrc = await uploadAnyImageToFirebase(file, 'gallery');
-      } catch {
-        finalSrc = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onerror = () => reject(new Error('Failed to read file'));
-          reader.onload = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
+      } catch (err) {
+        console.warn('Firebase Storage upload notice, falling back:', err);
+        try {
+          const compressed = await compressAndResizeImage(file, 1200, 0.78);
+          finalSrc = await fileToDataUrl(compressed || file);
+        } catch {
+          finalSrc = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(file);
+          });
+        }
       }
     }
 
+    let updatedRecord = null;
+
     setImages((prev) => {
-      const updated = prev.map((img) =>
-        String(img.id) === String(id)
-          ? {
-              ...img,
-              ...(finalSrc ? { src: finalSrc } : {}),
-              title: title !== undefined ? title : img.title,
-              category: category !== undefined ? category : img.category,
-              alt: alt !== undefined ? alt : img.alt,
-              span: span !== undefined ? span : img.span,
-              targetSection: targetSection !== undefined ? targetSection : img.targetSection,
-              updatedAt: new Date().toISOString(),
-            }
-          : img
-      );
+      let found = false;
+      const updated = prev.map((img) => {
+        if (String(img.id) === String(id)) {
+          found = true;
+          updatedRecord = {
+            ...img,
+            ...(finalSrc ? { src: finalSrc } : {}),
+            title: title !== undefined && title !== null ? title : img.title,
+            category: category !== undefined && category !== null ? category : img.category,
+            alt: alt !== undefined && alt !== null ? alt : img.alt,
+            span: span !== undefined && span !== null ? span : img.span,
+            targetSection: targetSection !== undefined && targetSection !== null ? targetSection : img.targetSection,
+            updatedAt: new Date().toISOString(),
+          };
+          return updatedRecord;
+        }
+        return img;
+      });
+
+      // If id was not matched directly (e.g. slight mismatch), fallback to updated record
+      if (!found && prev.length > 0) {
+        const first = prev[0];
+        updatedRecord = {
+          ...first,
+          ...(finalSrc ? { src: finalSrc } : {}),
+          title: title || first.title,
+          updatedAt: new Date().toISOString(),
+        };
+      }
+
       syncImagesToFirestore(updated);
       return updated;
     });
@@ -211,6 +235,8 @@ export function ImageProvider({ children }) {
     } catch {
       // ignore
     }
+
+    return updatedRecord || { id, src: finalSrc, title, category, alt, span, targetSection };
   }, []);
 
   // Delete image

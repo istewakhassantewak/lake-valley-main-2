@@ -8,8 +8,10 @@ import {
   Sparkles,
   Link as LinkIcon,
   Image as ImageIcon,
+  Loader2,
 } from 'lucide-react';
 import MediaLibraryModal from './MediaLibraryModal';
+import { uploadAnyImageToFirebase, compressAndResizeImage, fileToDataUrl } from '../../firebase';
 
 const POPULAR_PRESETS = [
   {
@@ -54,20 +56,37 @@ export default function ImageFieldPicker({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFullsize, setShowFullsize] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const activePresets = customPresets || POPULAR_PRESETS;
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result && onChange) {
-          onChange(event.target.result);
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      let finalUrl = '';
+      try {
+        finalUrl = await uploadAnyImageToFirebase(file, 'section-assets');
+      } catch (uploadErr) {
+        console.warn('Firebase storage upload failed, falling back to compressed data URL:', uploadErr);
+      }
+
+      if (!finalUrl) {
+        const compressed = await compressAndResizeImage(file, 1200, 0.78);
+        finalUrl = await fileToDataUrl(compressed || file);
+      }
+
+      if (finalUrl && onChange) {
+        onChange(finalUrl);
+      }
+    } catch (err) {
+      console.error('File upload error in ImageFieldPicker:', err);
+    } finally {
+      setIsUploading(false);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -132,6 +151,12 @@ export default function ImageFieldPicker({
       <div
         className={`relative ${aspectRatio} w-full rounded-2xl overflow-hidden border border-slate-200/90 bg-slate-100/80 group shadow-inner flex items-center justify-center`}
       >
+        {isUploading && (
+          <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-xs flex flex-col items-center justify-center text-white gap-2">
+            <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+            <span className="text-xs font-semibold">Processing & Uploading...</span>
+          </div>
+        )}
         {value ? (
           <>
             <img

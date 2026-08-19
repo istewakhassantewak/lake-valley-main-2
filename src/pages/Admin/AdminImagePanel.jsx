@@ -40,6 +40,7 @@ import {
   Download,
   UploadCloud,
   Database,
+  Loader2,
 } from 'lucide-react';
 import { useImages } from '../../context/ImageContext';
 import { useContent } from '../../context/ContentContext';
@@ -185,7 +186,18 @@ export default function AdminImagePanel() {
 
   const [replaceMode, setReplaceMode] = useState('file');
   const [replaceFile, setReplaceFile] = useState(null);
+  const [replaceFilePreview, setReplaceFilePreview] = useState('');
   const [replaceUrlInput, setReplaceUrlInput] = useState('');
+
+  useEffect(() => {
+    if (replaceFile) {
+      const url = URL.createObjectURL(replaceFile);
+      setReplaceFilePreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setReplaceFilePreview('');
+    }
+  }, [replaceFile]);
 
   // Filtered and Sorted Images
   const filteredImages = useMemo(() => {
@@ -719,11 +731,11 @@ export default function AdminImagePanel() {
     if (!replaceTargetImage) return;
 
     if (replaceMode === 'file' && !replaceFile) {
-      addToast('Please select a replacement image file', 'warning');
+      addToast('Please select a replacement image file from your device', 'warning');
       return;
     }
     if (replaceMode === 'url' && !replaceUrlInput.trim()) {
-      addToast('Please enter a replacement image URL', 'warning');
+      addToast('Please enter a valid replacement image URL', 'warning');
       return;
     }
 
@@ -743,12 +755,14 @@ export default function AdminImagePanel() {
         await syncImageToContent(updated);
       }
 
-      addToast('Image replaced successfully!', 'success');
+      addToast('Image replaced and synced successfully across all browsers!', 'success');
       setReplaceTargetImage(null);
       setReplaceFile(null);
       setReplaceUrlInput('');
+      setReplaceFilePreview('');
     } catch (err) {
-      addToast('Failed to replace image: ' + err.message, 'error');
+      console.error('Image replace failure:', err);
+      addToast('Failed to replace image: ' + (err.message || 'Unknown error'), 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -2805,19 +2819,62 @@ export default function AdminImagePanel() {
                   setReplaceTargetImage(null);
                   setReplaceFile(null);
                   setReplaceUrlInput('');
+                  setReplaceFilePreview('');
                 }}
                 className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="mb-6">
+              <div className="mb-5">
                 <div className="flex items-center gap-2 text-emerald-brand text-xs font-bold uppercase tracking-wider mb-1">
                   <RefreshCw className="w-4 h-4" /> Replace Image Media
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 line-clamp-1">
                   Replace "{replaceTargetImage.title}"
                 </h3>
+              </div>
+
+              {/* Side-by-side Preview */}
+              <div className="grid grid-cols-2 gap-3 mb-5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div>
+                  <span className="block text-[11px] font-semibold text-slate-500 mb-1">Current Image</span>
+                  <div className="aspect-video rounded-xl overflow-hidden bg-slate-200 border border-slate-200">
+                    <img
+                      src={replaceTargetImage.src}
+                      alt={replaceTargetImage.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="block text-[11px] font-semibold text-emerald-600 mb-1">Replacement Preview</span>
+                  <div className="aspect-video rounded-xl overflow-hidden bg-slate-100 border border-dashed border-emerald-300 flex items-center justify-center">
+                    {replaceMode === 'file' && replaceFilePreview ? (
+                      <img
+                        src={replaceFilePreview}
+                        alt="New replacement preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : replaceMode === 'url' && replaceUrlInput.trim() ? (
+                      <img
+                        src={replaceUrlInput.trim()}
+                        alt="URL replacement preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://placehold.co/400x300/f1f5f9/94a3b8?text=Invalid+URL';
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center p-2">
+                        <ImageIcon className="w-5 h-5 mx-auto text-slate-300 mb-1" />
+                        <span className="text-[10px] text-slate-400 font-medium">Select file or URL</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex bg-slate-100 p-1 rounded-xl mb-4">
@@ -2852,7 +2909,8 @@ export default function AdminImagePanel() {
                       className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-brand file:text-white hover:file:bg-emerald-brand/90 cursor-pointer"
                     />
                     {replaceFile && (
-                      <p className="text-xs text-emerald-600 mt-1 font-medium">
+                      <p className="text-xs text-emerald-600 mt-1.5 font-medium flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 text-emerald-500" />
                         Selected: {replaceFile.name} ({(replaceFile.size / 1024).toFixed(1)} KB)
                       </p>
                     )}
@@ -2877,17 +2935,24 @@ export default function AdminImagePanel() {
                       setReplaceTargetImage(null);
                       setReplaceFile(null);
                       setReplaceUrlInput('');
+                      setReplaceFilePreview('');
                     }}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-slate-50"
+                    className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold hover:bg-slate-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="px-5 py-2 rounded-xl bg-emerald-brand text-white text-xs font-semibold shadow-md hover:bg-emerald-brand/90 disabled:opacity-50"
+                    disabled={isSubmitting || (replaceMode === 'file' && !replaceFile) || (replaceMode === 'url' && !replaceUrlInput.trim())}
+                    className="px-5 py-2 rounded-xl bg-emerald-brand text-white text-xs font-semibold shadow-md hover:bg-emerald-brand/90 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
-                    {isSubmitting ? 'Replacing...' : 'Confirm & Replace'}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Replacing...
+                      </>
+                    ) : (
+                      'Confirm & Replace'
+                    )}
                   </button>
                 </div>
               </form>

@@ -159,7 +159,7 @@ export async function getIdToken(forceRefresh = false) {
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-function fileToDataUrl(file) {
+export function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
@@ -168,8 +168,10 @@ function fileToDataUrl(file) {
   });
 }
 
-async function compressAndResizeImage(file, maxDimension = 1200, quality = 0.82) {
-  if (!file || !file.type.startsWith('image/')) return file;
+export async function compressAndResizeImage(file, maxDimension = 1200, quality = 0.78) {
+  if (!file || !(file instanceof Blob || (typeof file.type === 'string' && file.type.startsWith('image/')))) {
+    return file;
+  }
   return new Promise((resolve) => {
     const img = new Image();
     const reader = new FileReader();
@@ -188,18 +190,26 @@ async function compressAndResizeImage(file, maxDimension = 1200, quality = 0.82)
         }
 
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = Math.max(1, width);
+        canvas.height = Math.max(1, height);
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
+        if (ctx) {
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
 
         canvas.toBlob(
           (blob) => {
-            if (blob && blob.size < file.size) {
-              const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
-                type: 'image/jpeg',
-                lastModified: Date.now(),
-              });
+            if (blob) {
+              const compressedFile = new File(
+                [blob],
+                (file.name || 'image.jpg').replace(/\.[^/.]+$/, '.jpg'),
+                {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                }
+              );
               resolve(compressedFile);
             } else {
               resolve(file);
@@ -210,7 +220,7 @@ async function compressAndResizeImage(file, maxDimension = 1200, quality = 0.82)
         );
       };
       img.onerror = () => resolve(file);
-      img.src = e.target.result;
+      img.src = e.target?.result;
     };
     reader.onerror = () => resolve(file);
     reader.readAsDataURL(file);
@@ -342,13 +352,13 @@ export async function removeProfileImage() {
 
 export async function uploadAnyImageToFirebase(file, folder = 'site-assets') {
   if (!file) return null;
+  await ensureFirebaseAuth().catch(() => {});
+
   let processedFile = file;
-  if (file.size > 300 * 1024) {
-    try {
-      processedFile = await compressAndResizeImage(file, 1800, 0.85);
-    } catch {
-      // ignore
-    }
+  try {
+    processedFile = await compressAndResizeImage(file, 1400, 0.80);
+  } catch (err) {
+    console.warn('Compression notice:', err);
   }
 
   try {
@@ -358,7 +368,7 @@ export async function uploadAnyImageToFirebase(file, folder = 'site-assets') {
     await uploadBytes(storageRef, processedFile, { contentType: processedFile.type || 'image/jpeg' });
     return await getDownloadURL(storageRef);
   } catch (err) {
-    console.warn('Firebase Storage upload failed, converting to optimized data URL fallback:', err);
+    console.warn('Firebase Storage upload notice, converting to optimized data URL fallback:', err?.message || err);
     return await fileToDataUrl(processedFile);
   }
 }
