@@ -48,9 +48,9 @@ export default function ImageFieldPicker({
   description = '',
   aspectRatio = 'aspect-video',
   placeholder = 'Enter image URL or upload...',
-  showPresets = true,
+  showPresets = false,
   customPresets = null,
-  presetLabel = 'Quick Township Presets:',
+  presetLabel = 'Suggested Presets:',
   modalTitle = 'Select Media Image',
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function ImageFieldPicker({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-  const activePresets = customPresets || POPULAR_PRESETS;
+  const activePresets = customPresets || (showPresets ? POPULAR_PRESETS : []);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];

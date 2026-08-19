@@ -39,39 +39,39 @@ export const defaultContentState = {
       },
       {
         id: 2,
-        title: 'Green Garden Resort',
-        titleBn: 'গ্রীন গার্ডেন রিসোর্ট',
-        subtitle: 'Luxury Amidst Nature',
-        description: 'Escape to a serene resort destination within the township — featuring lakeside views, premium hospitality, and world-class recreational facilities.',
-        image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062843_47538.jpg',
-        cta: 'Discover Resort',
-        ctaLink: '/projects/green-garden-resort',
-      },
-      {
-        id: 3,
-        title: 'Duplex City',
-        titleBn: 'ডুপ্লেক্স সিটি',
+        title: 'Lake Valley Duplex City & Resort Limited',
+        titleBn: 'লেক ভ্যালি ডুপ্লেক্স সিটি অ্যান্ড রিসোর্ট লিমিটেড',
         subtitle: 'Elevated Family Living',
         description: 'Spacious duplex villas designed for modern families, combining architectural elegance with the tranquility of lakeside township living.',
         image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062826_00838.jpg',
         cta: 'View Duplexes',
-        ctaLink: '/projects/duplex-city',
+        ctaLink: '/projects/lake-valley-duplex-city',
+      },
+      {
+        id: 3,
+        title: 'Lake Valley Green Garden Resort',
+        titleBn: 'লেক ভ্যালি গ্রীন গার্ডেন রিসোর্ট',
+        subtitle: 'Luxury Amidst Nature',
+        description: 'Escape to a serene resort destination within the township — featuring lakeside views, premium hospitality, and world-class recreational facilities.',
+        image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062843_47538.jpg',
+        cta: 'Discover Resort',
+        ctaLink: '/projects/lake-valley-green-garden-resort',
       },
       {
         id: 4,
-        title: 'Commercial Bangla Tower',
-        titleBn: 'বাংলা টাওয়ার',
+        title: 'Lake Valley Bangla Tower',
+        titleBn: 'লেক ভ্যালি বাংলা টাওয়ার',
         subtitle: 'Prime Business Destination',
         description: 'Strategic commercial spaces positioned near industrial zones — offering exceptional rental yields and long-term investment potential.',
         image: 'https://lakevalleyflowercity.com/uploads/pages/1784711067_90986.jpeg',
         cta: 'Invest Now',
-        ctaLink: '/projects/commercial-bangla-tower',
+        ctaLink: '/projects/lake-valley-bangla-tower',
       },
     ],
     stats: [
       { value: 300, suffix: '+', label: 'Acres of Land' },
       { value: 2000, suffix: '+', label: 'Flower Species' },
-      { value: 5, suffix: '', label: 'Major Projects' },
+      { value: 4, suffix: '', label: 'Flagship Projects' },
       { value: 15, suffix: '+', label: 'Years Vision' },
     ],
   },
@@ -81,114 +81,91 @@ export const defaultContentState = {
       slug: 'lake-valley-flower-city',
       title: 'Lake Valley Flower City',
       titleBn: 'লেক ভ্যালি ফ্লাওয়ার সিটি',
-      tagline: 'The Heart of the Township',
+      tagline: 'The Heart of the Integrated Township',
       shortDescription: 'A trusted residential destination where riverside serenity meets wide roads and modern civic amenities — your dream address awaits.',
-      description: 'Lake Valley Flower City is the flagship residential zone of our 300-acre integrated township. Surrounded by natural lakes on three sides and adorned with over 2,000 species of flowers across themed blocks, this project offers 3, 5, 7, and 10 katha plots with dedicated schools, playgrounds, mosques, and green corridors for complete community living.',
+      description: 'Lake Valley Flower City is the flagship residential zone of our 300-acre integrated eco-township. Surrounded by natural lakes on three sides and adorned with over 2,000 species of flowers across themed blocks, this project offers 3, 5, 7, and 10 katha plots with dedicated schools, playgrounds, mosques, and green corridors for complete community living.',
       image: 'https://lakevalleyflowercity.com/uploads/pages/1745397003_76929.jpeg',
       heroImage: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062843_47538.jpg',
       features: [
-        '3, 5, 7 & 10 katha plots',
+        '3, 5, 7 & 10 katha residential plots',
         '2000+ flower species and lakeside greenery',
         'Dedicated schools, playgrounds & mosques',
-        'Wide internal roads & civic amenities',
+        'Wide internal roads & 24/7 civic amenities',
         'Resort and commercial zones',
-        'Secure gated community',
+        'Secure gated community with 3-tier security',
       ],
       amenities: ['Park', 'Lake View', 'Mosque', 'School', 'Sports Club', 'Wide Roads'],
       stats: { area: '180 Acres', plots: '1200+', startingPriceUSD: 25000, pricePerKathaUSD: 8500 },
-      location: 'Near Dhaka, Bangladesh — adjacent to BASIC Chemical Industrial City',
+      location: 'Near Dhaka-Mawa Expressway, Bangladesh — adjacent to BASIC Industrial City',
       featured: true,
     },
     {
-      id: 'duplex-city',
-      slug: 'duplex-city',
-      title: 'Duplex City',
-      titleBn: 'লেক ভ্যালি ডুপ্লেক্স সিটি',
-      tagline: 'Premium Duplex Living',
-      shortDescription: 'Stylish duplex villas designed for modern families, offering private gardens and easy access to township amenities.',
-      description: 'Duplex City features premium two-story villas within Lake Valley Flower City, combining spacious living, contemporary architecture, and proximity to the sports club, boarding school, convention hall, and community facilities.',
+      id: 'lake-valley-duplex-city',
+      slug: 'lake-valley-duplex-city',
+      title: 'Lake Valley Duplex City & Resort Limited',
+      titleBn: 'লেক ভ্যালি ডুপ্লেক্স সিটি অ্যান্ড রিসোর্ট লিমিটেড',
+      tagline: 'Premium Duplex & Villa Living',
+      shortDescription: 'Stylish duplex villas designed for modern families, offering private gardens, architectural elegance, and lakeside serenity.',
+      description: 'Lake Valley Duplex City & Resort Limited features premium two-story luxury villas within Lake Valley Flower City, combining spacious living, contemporary architecture, and proximity to the sports club, boarding school, convention hall, and community facilities.',
       image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062826_00838.jpg',
       heroImage: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062826_00838.jpg',
       features: [
-        'Two-story premium villas',
-        'Private garden spaces',
-        'Modern architectural design',
-        'Gated community security',
-        'Close to sports club & school',
-        'Family-friendly living',
+        'Two-story premium luxury duplex villas',
+        'Private landscaped garden spaces',
+        'Contemporary architectural aesthetics',
+        '24/7 gated security & CCTV surveillance',
+        'Walking distance to sports club & international school',
+        'Serene family-friendly neighborhood',
       ],
       amenities: ['Private Garden', 'Parking', 'Security', 'Club Access', 'Lake Proximity'],
-      stats: { area: '45 Acres', plots: '200+', startingPriceUSD: 65000, pricePerKathaUSD: 13000 },
-      location: 'Within Lake Valley Flower City master plan',
+      stats: { area: '45 Acres', plots: '200+ Villas', startingPriceUSD: 65000, pricePerKathaUSD: 13000 },
+      location: 'Central Lakefront Zone, Lake Valley Flower City',
       featured: true,
     },
     {
-      id: 'green-garden-resort',
-      slug: 'green-garden-resort',
-      title: 'Green Garden Resort',
-      titleBn: 'গ্রীন গার্ডেন রিসোর্ট',
-      tagline: 'Hospitality Redefined',
-      shortDescription: 'Lakeside resort destination with studio apartments, luxury villas, and recreational facilities.',
-      description: 'Green Garden Resort offers studio apartments and luxury holiday homes integrated into Lake Valley Flower City. Guests and owners enjoy lakeside dining, swimming pools, convention hall access, and organic garden views.',
+      id: 'lake-valley-green-garden-resort',
+      slug: 'lake-valley-green-garden-resort',
+      title: 'Lake Valley Green Garden Resort',
+      titleBn: 'লেক ভ্যালি গ্রীন গার্ডেন রিসোর্ট',
+      tagline: 'Luxury Hospitality & Leisure',
+      shortDescription: 'A lakeside resort destination offering premium accommodation, recreational facilities, and high-yield hospitality investment.',
+      description: 'Lake Valley Green Garden Resort is the hospitality crown of Lake Valley Flower City. Set against a backdrop of lush botanical gardens and serene water bodies, the resort features luxury suites, fine dining, event spaces, swimming pools, and wellness facilities.',
       image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062843_47538.jpg',
       heroImage: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062843_47538.jpg',
       features: [
-        'Studio apartments & luxury villas',
-        'Lakeside restaurant & dining',
-        'Convention hall for events',
-        'Swimming pool & recreation',
-        'Organic garden surroundings',
-        'Rental income management option',
+        'Lakeside luxury suites & chalets',
+        'Fine dining & grand banquet halls',
+        'Infinity swimming pool & wellness spa',
+        'Grand event & wedding convention venues',
+        'Eco-friendly resort landscape',
+        'High-yield rental management options',
       ],
-      amenities: ['Resort Pool', 'Convention Hall', 'Restaurant', 'Lake View', 'Housekeeping'],
-      stats: { area: '30 Acres', plots: '150 Units', startingPriceUSD: 35000, pricePerKathaUSD: 10000 },
-      location: 'Resort Zone, Lake Valley Flower City',
+      amenities: ['Pool', 'Spa', 'Restaurant', 'Event Hall', 'Lake View', 'Garden'],
+      stats: { area: '25 Acres', plots: '80+ Units', startingPriceUSD: 80000, pricePerKathaUSD: 16000 },
+      location: 'Resort Peninsula Zone, Lake Valley Flower City',
       featured: true,
     },
     {
-      id: 'commercial-bangla-tower',
-      slug: 'commercial-bangla-tower',
-      title: 'Commercial Bangla Tower',
-      titleBn: 'বাংলা টাওয়ার',
-      tagline: 'Prime Business Destination',
-      shortDescription: 'Modern commercial tower offering retail, office, and bank spaces near major industrial zones.',
-      description: 'Commercial Bangla Tower is a high-yield commercial property situated strategically near BASIC Chemical Industrial City and Printing Industrial City. Features modern elevators, ample parking, 24/7 power backup, and high footfall location.',
+      id: 'lake-valley-bangla-tower',
+      slug: 'lake-valley-bangla-tower',
+      title: 'Lake Valley Bangla Tower',
+      titleBn: 'লেক ভ্যালি বাংলা টাওয়ার',
+      tagline: 'Strategic Commercial & Business Hub',
+      shortDescription: 'Premium commercial spaces positioned for business growth, retail outlets, corporate offices, and strong rental yields.',
+      description: 'Lake Valley Bangla Tower offers modern retail spaces, corporate offices, and banking units facing the main highway corridor near BASIC Chemical Industrial City and Printing Industrial City. The project is designed for businesses and investors seeking prime location advantages and long-term commercial value.',
       image: 'https://lakevalleyflowercity.com/uploads/pages/1784711067_90986.jpeg',
       heroImage: 'https://lakevalleyflowercity.com/uploads/pages/1784711067_90986.jpeg',
       features: [
-        'Retail shops, bank spaces & offices',
-        'High footfall commercial location',
-        'Modern elevators & 24/7 power backup',
-        'Ample basement & surface parking',
-        'High rental yield potential',
-        'Near industrial hub corridor',
+        'Prime highway frontage commercial location',
+        'Adjacent to major industrial corridors',
+        'High rental yield & capital growth potential',
+        'High-speed elevators & 24/7 power backup',
+        'Flexible retail & corporate office unit sizes',
+        'Ample multi-level basement parking',
       ],
-      amenities: ['Elevators', 'Power Backup', 'Security', 'Parking', 'Fire Safety'],
-      stats: { area: '15 Acres', plots: '80 Outlets', startingPriceUSD: 45000, pricePerKathaUSD: 15000 },
-      location: 'Commercial Zone — Main Entrance Road',
-      featured: true,
-    },
-    {
-      id: 'eco-agro-tourism',
-      slug: 'eco-agro-tourism',
-      title: 'Eco Agro Tourism',
-      titleBn: 'ইকো এগ্রো ট্যুরিজম',
-      tagline: 'Sustainable Agriculture & Leisure',
-      shortDescription: 'Farmhouses, organic orchards, and agro-based recreational activities within the township.',
-      description: 'Eco Agro Tourism blends organic farming, flower cultivation, fish farming, and weekend farmhouses. Owners enjoy organic produce, scenic nature walks, and passive income from agro-based tourism.',
-      image: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062793_98940.jpg',
-      heroImage: 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062793_98940.jpg',
-      features: [
-        'Organic orchards & flower gardens',
-        'Weekend farmhouse plots',
-        'Agro-based tourism attractions',
-        'Fishery & organic produce',
-        'Peaceful countryside atmosphere',
-        'Sustainable eco-investment',
-      ],
-      amenities: ['Organic Farming', 'Fishery', 'Farmhouse Plots', 'Guided Tours', 'Nature Trails'],
-      stats: { area: '30 Acres', plots: '100 Plots', startingPriceUSD: 20000, pricePerKathaUSD: 7000 },
-      location: 'Agro Zone, Northern Perimeter',
+      amenities: ['Parking', 'Elevator', 'Security', 'Retail Space', 'Office Units', 'Power Backup'],
+      stats: { area: '12 Acres', plots: '100+ Units', startingPriceUSD: 45000, pricePerKathaUSD: 11000 },
+      location: 'Main Commercial Avenue, Lake Valley Flower City',
       featured: true,
     },
   ],
@@ -374,8 +351,54 @@ export const defaultContentState = {
   },
 };
 
+export function sanitizeProjectsAndHero(data) {
+  if (!data || typeof data !== 'object') return defaultContentState;
+  const cleaned = { ...defaultContentState, ...data };
+
+  // If projects is provided as an array, preserve all user edits and ensure valid structure
+  if (Array.isArray(data.projects) && data.projects.length > 0) {
+    cleaned.projects = data.projects.map((p) => {
+      if (!p || typeof p !== 'object') return p;
+      return {
+        ...p,
+        id: p.id || p.slug || `proj-${Date.now()}`,
+        slug: p.slug || p.id || 'project',
+        title: p.title || 'Untitled Project',
+        titleBn: p.titleBn || '',
+        tagline: p.tagline || '',
+        shortDescription: p.shortDescription || '',
+        description: p.description || p.fullDescription || '',
+        image: p.image || '',
+        heroImage: p.heroImage || p.image || '',
+        features: Array.isArray(p.features) ? p.features : [],
+        amenities: Array.isArray(p.amenities) ? p.amenities : [],
+        stats: p.stats && typeof p.stats === 'object' ? p.stats : {},
+        location: p.location || '',
+      };
+    });
+  } else {
+    cleaned.projects = defaultContentState.projects;
+  }
+
+  // Preserve hero slides and stats
+  if (data.hero && typeof data.hero === 'object') {
+    cleaned.hero = {
+      slides: Array.isArray(data.hero.slides) && data.hero.slides.length > 0
+        ? data.hero.slides
+        : defaultContentState.hero.slides,
+      stats: Array.isArray(data.hero.stats) && data.hero.stats.length > 0
+        ? data.hero.stats
+        : defaultContentState.hero.stats,
+    };
+  } else {
+    cleaned.hero = defaultContentState.hero;
+  }
+
+  return cleaned;
+}
+
 const ContentContext = createContext(null);
-const LOCAL_CONTENT_KEY = 'lv_managed_content_v2';
+const LOCAL_CONTENT_KEY = 'lv_managed_content_v3';
 
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(() => {
@@ -384,7 +407,7 @@ export function ContentProvider({ children }) {
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') {
-          return { ...defaultContentState, ...parsed };
+          return sanitizeProjectsAndHero(parsed);
         }
       }
     } catch {
@@ -409,7 +432,7 @@ export function ContentProvider({ children }) {
       const res = await fetchContentApi();
       if (res && typeof res === 'object' && Object.keys(res).length > 0) {
         setContent((prev) => {
-          const merged = { ...defaultContentState, ...prev, ...res };
+          const merged = sanitizeProjectsAndHero({ ...prev, ...res });
           try {
             localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
           } catch {
@@ -432,11 +455,10 @@ export function ContentProvider({ children }) {
     const unsubscribe = subscribeToContentChanges((liveContent) => {
       if (liveContent && typeof liveContent === 'object' && Object.keys(liveContent).length > 0) {
         setContent((prev) => {
-          const merged = {
-            ...defaultContentState,
+          const merged = sanitizeProjectsAndHero({
             ...prev,
             ...liveContent,
-          };
+          });
           try {
             localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
           } catch {
@@ -453,7 +475,7 @@ export function ContentProvider({ children }) {
   }, [loadContent]);
 
   const updateSection = useCallback(async (section, newSectionData) => {
-    // Optimistic state update
+    // 1. Direct state update immediately
     setContent((prev) => {
       const updated = {
         ...prev,
@@ -467,9 +489,10 @@ export function ContentProvider({ children }) {
       return updated;
     });
 
+    // 2. Persist to cloud database and backend server
     const res = await updateContentApi({ section, data: newSectionData });
     if (res && res.error) {
-      console.warn(`Firestore sync note for ${section}:`, res.error);
+      console.warn(`Cloud database sync note for ${section}:`, res.error);
     }
     return res;
   }, []);

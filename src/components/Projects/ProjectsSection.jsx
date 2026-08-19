@@ -12,7 +12,7 @@ import { resolveProjectImage } from '../../utils/imageResolver';
 /**
  * Featured projects grid for homepage
  */
-export default function ProjectsSection({ limit = 5, showAll = false }) {
+export default function ProjectsSection({ limit = 4, showAll = false }) {
   const { projects: allProjects } = useContent();
   const { images } = useImages();
   const displayProjects = showAll ? (allProjects || []) : (allProjects || []).slice(0, limit);
@@ -22,13 +22,13 @@ export default function ProjectsSection({ limit = 5, showAll = false }) {
     <section id="projects" className="section-padding">
       <div className="max-w-7xl mx-auto">
         <SectionHeading
-          badge="Our Projects"
+          badge="4 Flagship Projects"
           title="Discover Our Integrated Developments"
-          titleBn="আমাদের প্রকল্পসমূহ"
-          subtitle="From serene residential plots to bustling commercial hubs — explore the diverse portfolio that makes Lake Valley Flower City a complete lifestyle destination."
+          titleBn="আমাদের ৪টি প্রধান প্রকল্প"
+          subtitle="From serene residential plots to luxury duplex villas, resort living, and bustling commercial hubs — explore our 4 master developments."
         />
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {displayProjects.map((project, i) => (
             <ScrollReveal key={project.id} delay={i * 0.1}>
               <Link

@@ -28,7 +28,7 @@ export default function BookingForm({ compact = false }) {
     formState: { errors, isSubmitSuccessful, isSubmitting },
   } = useForm({
     defaultValues: {
-      project: projects[0]?.title || 'Lake Valley Flower City Phase 1',
+      project: projects[0]?.title || 'Lake Valley Flower City',
     },
   });
 

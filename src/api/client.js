@@ -9,17 +9,15 @@ async function buildHeaders(auth = false, forceRefresh = false) {
 
   if (adminToken) {
     headers['x-admin-token'] = adminToken;
-    if (!headers.Authorization) {
-      headers.Authorization = `Bearer ${adminToken}`;
-    }
+    headers['Authorization'] = `Bearer ${adminToken}`;
   }
 
   const needsAuth = auth === true || auth === 'optional';
-  if (needsAuth) {
+  if (needsAuth && !adminToken) {
     const token = await getIdToken(forceRefresh);
     if (token) {
       headers.Authorization = `Bearer ${token}`;
-    } else if (auth === true && !adminToken) {
+    } else if (auth === true) {
       throw new Error('Authentication required. Please sign in.');
     }
   }

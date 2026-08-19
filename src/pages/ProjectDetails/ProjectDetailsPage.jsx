@@ -29,7 +29,13 @@ export default function ProjectDetailsPage() {
   const { formatPrice } = useCurrency();
 
   const projectList = projects || [];
-  const project = projectList.find((p) => p.slug === slug || p.id === slug);
+  const project = projectList.find((p) => 
+    p.slug === slug || 
+    p.id === slug ||
+    (slug === 'duplex-city' && (p.slug === 'lake-valley-duplex-city' || p.id === 'lake-valley-duplex-city')) ||
+    (slug === 'green-garden-resort' && (p.slug === 'lake-valley-green-garden-resort' || p.id === 'lake-valley-green-garden-resort')) ||
+    (slug === 'commercial-bangla-tower' && (p.slug === 'lake-valley-bangla-tower' || p.id === 'lake-valley-bangla-tower'))
+  );
 
   if (!project) return <Navigate to="/projects" replace />;
 

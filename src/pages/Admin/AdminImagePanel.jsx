@@ -816,59 +816,73 @@ export default function AdminImagePanel() {
 
   const navTabs = [
     {
-      id: 'messages',
-      label: '📩 Client Messages & Inquiries',
-      shortLabel: 'Client Inquiries',
-      icon: Inbox,
-      group: 'Operations',
-      badge: 'Live',
-      badgeColor: 'bg-emerald-100 text-emerald-800',
-    },
-    {
-      id: 'media',
-      label: '📸 Media & Images',
-      shortLabel: 'Media Library',
-      icon: ImageIcon,
-      group: 'Operations',
-      badge: `${images.length}`,
-      badgeColor: 'bg-blue-100 text-blue-800',
-    },
-    {
-      id: 'site',
-      label: '🏢 Site & Contact',
-      shortLabel: 'Site & Contact',
-      icon: Building,
-      group: 'CMS',
-    },
-    {
-      id: 'hero',
-      label: '🖼️ Hero & Banner',
-      shortLabel: 'Hero Slider',
-      icon: Sparkles,
-      group: 'CMS',
-      badge: `${heroForm.slides?.length || 0}`,
-      badgeColor: 'bg-amber-100 text-amber-800',
-    },
-    {
       id: 'projects',
       label: '🏗️ Real Estate Projects',
+      bnLabel: 'প্রকল্পসমূহ (৪টি প্রজেক্ট)',
       shortLabel: 'Projects',
+      desc: 'Lake Valley Flower City, Duplex City & Resort Limited, Green Garden Resort & Bangla Tower',
       icon: Home,
       group: 'CMS',
       badge: `${projectsForm.length}`,
       badgeColor: 'bg-teal-100 text-teal-800',
     },
     {
+      id: 'hero',
+      label: '🖼️ Hero Slider & Banner',
+      bnLabel: 'হোম পেজের প্রধান স্লাইডার ও ব্যানার',
+      shortLabel: 'Hero Slider',
+      desc: 'Top homepage slider titles, images, and quick statistics',
+      icon: Sparkles,
+      group: 'CMS',
+      badge: `${heroForm.slides?.length || 0}`,
+      badgeColor: 'bg-amber-100 text-amber-800',
+    },
+    {
+      id: 'site',
+      label: '🏢 Site Branding & Contact',
+      bnLabel: 'লোগো, ফোন নম্বর ও যোগাযোগের ঠিকানা',
+      shortLabel: 'Site & Contact',
+      desc: 'Company logo, support email, phone numbers, office addresses & social links',
+      icon: Building,
+      group: 'CMS',
+    },
+    {
+      id: 'media',
+      label: '📸 Media Library & Uploads',
+      bnLabel: 'ছবি আপলোড ও গ্যালারি লাইব্রেরি',
+      shortLabel: 'Media Library',
+      desc: 'Upload new images, manage website gallery photos and copy image URLs',
+      icon: ImageIcon,
+      group: 'Operations',
+      badge: `${images.length}`,
+      badgeColor: 'bg-blue-100 text-blue-800',
+    },
+    {
+      id: 'messages',
+      label: '📩 Client Inquiries & Leads',
+      bnLabel: 'গ্রাহকদের বুকিং ও মেসেজ তালিকা',
+      shortLabel: 'Client Inquiries',
+      desc: 'Real-time customer inquiries, plot requests and contact form submissions',
+      icon: Inbox,
+      group: 'Operations',
+      badge: 'Live',
+      badgeColor: 'bg-emerald-100 text-emerald-800',
+    },
+    {
       id: 'about',
-      label: '📖 About Us Page',
+      label: '📖 About Us Page Content',
+      bnLabel: 'কোম্পানি সম্পর্কে ও চেয়ারম্যানের বাণী',
       shortLabel: 'About Us',
+      desc: 'About story texts, mission, vision, chairman and advisor messages',
       icon: Info,
       group: 'CMS',
     },
     {
       id: 'amenities',
-      label: '🌟 Amenities List',
+      label: '🌟 Township Amenities',
+      bnLabel: 'নাগরিক সুযোগ-সুবিধা সমূহ',
       shortLabel: 'Amenities',
+      desc: 'Lakes, botanical gardens, sports club, security and civic facilities',
       icon: Award,
       group: 'CMS',
       badge: `${amenitiesForm.items?.length || 0}`,
@@ -877,7 +891,9 @@ export default function AdminImagePanel() {
     {
       id: 'why',
       label: '💡 Why Choose Us',
+      bnLabel: 'কেন লেক ভ্যালি বেছে নেবেন',
       shortLabel: 'Why Choose Us',
+      desc: 'Core highlights, green township benefits and legal assurances',
       icon: CheckCircle2,
       group: 'CMS',
       badge: `${whyForm.features?.length || 0}`,
@@ -885,8 +901,10 @@ export default function AdminImagePanel() {
     },
     {
       id: 'testimonials',
-      label: '💬 Testimonials',
+      label: '💬 Client Testimonials',
+      bnLabel: 'সন্তুষ্ট গ্রাহক ও প্রবাসীদের মতামত',
       shortLabel: 'Testimonials',
+      desc: 'Customer quotes, reviews, ratings, and plot buyer stories',
       icon: MessageSquare,
       group: 'CMS',
       badge: `${testimonialsForm.testimonials?.length || 0}`,
@@ -894,8 +912,10 @@ export default function AdminImagePanel() {
     },
     {
       id: 'faqs',
-      label: '❓ FAQ Items',
+      label: '❓ FAQ Questions & Answers',
+      bnLabel: 'সাধারণ জিজ্ঞাসা ও উত্তর',
       shortLabel: 'FAQ Items',
+      desc: 'Common buyer questions about registration, installment plans and handover',
       icon: HelpCircle,
       group: 'CMS',
       badge: `${faqsForm.length}`,
@@ -903,8 +923,10 @@ export default function AdminImagePanel() {
     },
     {
       id: 'cta',
-      label: '📢 Call to Action',
+      label: '📢 Call to Action & Banners',
+      bnLabel: 'কল টু অ্যাকশন ও বুকিং ব্যানার',
       shortLabel: 'Call to Action',
+      desc: 'Bottom booking banner texts, contact buttons and hotline CTA',
       icon: Send,
       group: 'CMS',
     },
@@ -1021,6 +1043,66 @@ export default function AdminImagePanel() {
           </div>
         </div>
 
+        {/* Quick CMS Guide (সহজে ওয়েবসাইট আপডেট করার গাইড) */}
+        <div className="bg-gradient-to-r from-emerald-950 via-teal-950 to-slate-950 text-white rounded-3xl p-5 md:p-6 border border-emerald-500/30 shadow-lg space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-emerald-500/20 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-lg border border-emerald-500/30">
+                💡
+              </div>
+              <div>
+                <h2 className="text-sm md:text-base font-bold text-white flex flex-wrap items-center gap-2">
+                  <span>How to Update Anything on Your Website</span>
+                  <span className="text-emerald-400 font-bangla text-xs font-medium">| সহজে ওয়েবসাইট আপডেট করার ৩টি ধাপ</span>
+                </h2>
+                <p className="text-xs text-slate-300">Follow these 3 simple steps to update any text, photo, or project on your live website:</p>
+              </div>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30 w-fit flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              Instant Live Sync
+            </span>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3.5">
+            <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 border border-white/10 flex items-start gap-3">
+              <div className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-sm">
+                ১
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">1. Select Menu (মেনু নির্বাচন)</h4>
+                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                  বা দিকের মেনু থেকে আপনি যা বদলাতে চান (যেমন: <strong>Real Estate Projects</strong>, <strong>Hero Slider</strong>, <strong>Site Contact</strong>) নির্বাচন করুন।
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 border border-white/10 flex items-start gap-3">
+              <div className="w-7 h-7 rounded-xl bg-teal-500 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-sm">
+                ২
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">2. Edit Text or Image (ছবি/তথ্য পরিবর্তন)</h4>
+                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                  টেক্সট বক্সে নতুন লেখা লিখুন অথবা ছবির উপর <strong>'Replace'</strong> / <strong>'Upload File'</strong> চেপে যেকোনো ছবি সহজে পরিবর্তন করুন।
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 border border-white/10 flex items-start gap-3">
+              <div className="w-7 h-7 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 shadow-sm">
+                ৩
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-white">3. Click 'Save Changes' (সংরক্ষণ করুন)</h4>
+                <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+                  সেকশনের উপরে বা নিচে থাকা বড় সবুজ <strong>'Save Changes'</strong> বাটনে চাপ দিন। আপনার সাইট সাথে সাথে সবার কাছে আপডেট হয়ে যাবে!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Mobile Section Selector & Drawer Toggle */}
         <div className="lg:hidden bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
@@ -1071,13 +1153,13 @@ export default function AdminImagePanel() {
                 </div>
               </div>
 
-              {/* SECTION GROUP 1: OPERATIONS & LEADS */}
+              {/* SECTION GROUP 1: WEBSITE CONTENT CMS */}
               <div className="space-y-1.5">
                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 mb-2 flex items-center justify-between">
-                  <span>Operations & Leads</span>
-                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-semibold">2 Tabs</span>
+                  <span>Website CMS & Pages</span>
+                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-semibold">9 Sections</span>
                 </p>
-                {navTabs.filter((t) => t.group === 'Operations').map((tab) => {
+                {navTabs.filter((t) => t.group === 'CMS').map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
                   return (
@@ -1087,15 +1169,22 @@ export default function AdminImagePanel() {
                         setActiveTab(tab.id);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                      className={`w-full text-left px-3.5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                         isActive
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-700/20'
                           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-600'}`} />
-                        <span className="truncate">{tab.label}</span>
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-600'}`} />
+                        <div className="min-w-0">
+                          <span className="block truncate font-bold">{tab.label}</span>
+                          {tab.bnLabel && (
+                            <span className={`block text-[10px] font-bangla truncate font-normal mt-0.5 ${isActive ? 'text-emerald-100' : 'text-slate-400'}`}>
+                              {tab.bnLabel}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {tab.badge && (
@@ -1116,13 +1205,13 @@ export default function AdminImagePanel() {
                 })}
               </div>
 
-              {/* SECTION GROUP 2: WEBSITE CONTENT CMS */}
+              {/* SECTION GROUP 2: OPERATIONS & LEADS */}
               <div className="space-y-1.5 pt-4 border-t border-slate-100">
                 <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 mb-2 flex items-center justify-between">
-                  <span>Website CMS & Pages</span>
-                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-semibold">9 Sections</span>
+                  <span>Operations & Media</span>
+                  <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-semibold">2 Tabs</span>
                 </p>
-                {navTabs.filter((t) => t.group === 'CMS').map((tab) => {
+                {navTabs.filter((t) => t.group === 'Operations').map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
                   return (
@@ -1132,15 +1221,22 @@ export default function AdminImagePanel() {
                         setActiveTab(tab.id);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-between gap-3 cursor-pointer group ${
+                      className={`w-full text-left px-3.5 py-3 rounded-2xl text-xs font-bold transition-all flex items-center justify-between gap-3 cursor-pointer group ${
                         isActive
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-700/20'
                           : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-600'}`} />
-                        <span className="truncate">{tab.label}</span>
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-600'}`} />
+                        <div className="min-w-0">
+                          <span className="block truncate font-bold">{tab.label}</span>
+                          {tab.bnLabel && (
+                            <span className={`block text-[10px] font-bangla truncate font-normal mt-0.5 ${isActive ? 'text-emerald-100' : 'text-slate-400'}`}>
+                              {tab.bnLabel}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {tab.badge && (
@@ -1786,63 +1882,105 @@ export default function AdminImagePanel() {
         {/* ========================================================================= */}
         {activeTab === 'projects' && (
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div>
-                <h2 className="text-xl font-bold text-deep-green">Real Estate Projects & Listings</h2>
-                <p className="text-slate-500 text-xs mt-0.5">Edit existing project titles, pricing, images, plot sizes, features, or add a brand new project.</p>
+                <div className="flex items-center gap-2 text-emerald-brand font-semibold text-xs tracking-wider uppercase mb-1">
+                  <Home className="w-4 h-4" /> 4 Flagship Developments
+                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-deep-green">Real Estate Projects & Listings</h2>
+                <p className="text-slate-500 text-xs mt-0.5">
+                  নিচের ৪টি প্রজেক্টের যেকোনোটিতে ক্লিক করে তথ্য, মূল্য ও ছবি পরিবর্তন করুন। পরিবর্তন শেষে <strong>'Save Projects'</strong> বাটনে চাপুন।
+                </p>
               </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleAddProject}
-                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-800 font-semibold text-xs hover:bg-slate-200 transition-all flex items-center gap-1 cursor-pointer"
-                >
-                  <Plus className="w-4 h-4" /> Add New Project
-                </button>
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={handleSaveProjects}
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 rounded-xl bg-emerald-brand text-white font-semibold text-xs hover:bg-emerald-brand/90 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md shadow-emerald-700/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <Save className="w-4 h-4" /> Save Projects Data
+                  <Save className="w-4 h-4" />
+                  <span>{isSubmitting ? 'Saving...' : 'Save Projects Data'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Project List Selector */}
-            <div className="flex flex-wrap gap-2 pb-4 border-b border-slate-100">
-              {projectsForm.map((proj, idx) => (
-                <button
-                  key={proj.id || idx}
-                  onClick={() => setSelectedProjectIndex(idx)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    selectedProjectIndex === idx
-                      ? 'bg-deep-green text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {proj.title || `Project #${idx + 1}`}
-                </button>
-              ))}
+            {/* Visual 4-Project Selector Cards */}
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <span>Select Project to Edit:</span>
+                <span className="text-[11px] font-normal text-slate-400 font-bangla">(যে প্রজেক্টটি এডিট করতে চান নির্বাচন করুন)</span>
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                {projectsForm.map((proj, idx) => {
+                  const isSelected = selectedProjectIndex === idx;
+                  return (
+                    <button
+                      key={proj.id || idx}
+                      type="button"
+                      onClick={() => setSelectedProjectIndex(idx)}
+                      className={`text-left p-3.5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between h-full ${
+                        isSelected
+                          ? 'border-emerald-600 bg-emerald-50/50 shadow-md ring-2 ring-emerald-500/20'
+                          : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-200 shrink-0 border border-slate-300/60 shadow-inner">
+                          <img
+                            src={proj.image || 'https://lakevalleyflowercity.com/uploads/gallery-images/1785062826_00838.jpg'}
+                            alt={proj.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <span className={`text-[10px] font-extrabold uppercase tracking-wider block ${isSelected ? 'text-emerald-700' : 'text-slate-400'}`}>
+                            Project #{idx + 1}
+                          </span>
+                          <h4 className="text-xs font-bold text-slate-900 truncate mt-0.5">
+                            {proj.title || `Project #${idx + 1}`}
+                          </h4>
+                          <p className="text-[11px] font-bangla text-slate-500 truncate mt-0.5">
+                            {proj.titleBn || ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
+                        <span className="font-semibold text-slate-600 truncate">{proj.stats?.area || 'Township'}</span>
+                        <span className={`font-bold px-2 py-0.5 rounded-full ${isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                          {isSelected ? 'Editing Now' : 'Click to Edit'}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Selected Project Form */}
             {projectsForm[selectedProjectIndex] && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-deep-green text-base">
-                    Editing Project #{selectedProjectIndex + 1}: {projectsForm[selectedProjectIndex].title}
-                  </h3>
-                  <button
-                    onClick={() => handleDeleteProject(selectedProjectIndex)}
-                    className="text-rose-500 text-xs font-bold hover:underline cursor-pointer flex items-center gap-1"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" /> Delete Project
-                  </button>
+              <div className="space-y-6 pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between bg-slate-50 rounded-2xl p-4 border border-slate-200/80">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                      {selectedProjectIndex + 1}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-deep-green text-sm sm:text-base">
+                        Editing: {projectsForm[selectedProjectIndex].title}
+                      </h3>
+                      <p className="text-xs text-slate-500 font-bangla">
+                        {projectsForm[selectedProjectIndex].titleBn}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
+                    {projectsForm[selectedProjectIndex].tagline || 'Flagship'}
+                  </span>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title (English)</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title (English) *</label>
                     <input
                       type="text"
                       value={projectsForm[selectedProjectIndex].title || ''}
@@ -1851,12 +1989,12 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].title = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title (Bengali)</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Title (Bengali / বাংলা) *</label>
                     <input
                       type="text"
                       value={projectsForm[selectedProjectIndex].titleBn || ''}
@@ -1865,12 +2003,12 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].titleBn = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bangla focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Category Tagline</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Category Tagline (e.g. Integrated Eco-Township, Luxury Resort)</label>
                     <input
                       type="text"
                       value={projectsForm[selectedProjectIndex].tagline || ''}
@@ -1879,7 +2017,7 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].tagline = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
@@ -1893,7 +2031,7 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].slug = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
@@ -1938,29 +2076,77 @@ export default function AdminImagePanel() {
                         };
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm font-bold"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Plot Sizes Text</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Price Per Katha (USD)</label>
                     <input
-                      type="text"
-                      value={projectsForm[selectedProjectIndex].stats?.plotSizes || ''}
+                      type="number"
+                      value={projectsForm[selectedProjectIndex].stats?.pricePerKathaUSD || 0}
                       onChange={(e) => {
                         const updated = [...projectsForm];
                         updated[selectedProjectIndex].stats = {
                           ...updated[selectedProjectIndex].stats,
-                          plotSizes: e.target.value,
+                          pricePerKathaUSD: Number(e.target.value),
                         };
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Total Project Area (e.g. 300 Acres, 12 Acres)</label>
+                    <input
+                      type="text"
+                      value={projectsForm[selectedProjectIndex].stats?.area || ''}
+                      onChange={(e) => {
+                        const updated = [...projectsForm];
+                        updated[selectedProjectIndex].stats = {
+                          ...updated[selectedProjectIndex].stats,
+                          area: e.target.value,
+                        };
+                        setProjectsForm(updated);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Total Units / Plots (e.g. 1000+ Plots, 100+ Units)</label>
+                    <input
+                      type="text"
+                      value={projectsForm[selectedProjectIndex].stats?.plots || ''}
+                      onChange={(e) => {
+                        const updated = [...projectsForm];
+                        updated[selectedProjectIndex].stats = {
+                          ...updated[selectedProjectIndex].stats,
+                          plots: e.target.value,
+                        };
+                        setProjectsForm(updated);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Short Description</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Location Address</label>
+                    <input
+                      type="text"
+                      value={projectsForm[selectedProjectIndex].location || ''}
+                      onChange={(e) => {
+                        const updated = [...projectsForm];
+                        updated[selectedProjectIndex].location = e.target.value;
+                        setProjectsForm(updated);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Short Summary Description</label>
                     <textarea
                       rows={2}
                       value={projectsForm[selectedProjectIndex].shortDescription || ''}
@@ -1969,12 +2155,12 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].shortDescription = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Full Description</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Full Detailed Description</label>
                     <textarea
                       rows={4}
                       value={projectsForm[selectedProjectIndex].fullDescription || ''}
@@ -1983,9 +2169,53 @@ export default function AdminImagePanel() {
                         updated[selectedProjectIndex].fullDescription = e.target.value;
                         setProjectsForm(updated);
                       }}
-                      className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
                     />
                   </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Features (Comma separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(projectsForm[selectedProjectIndex].features) ? projectsForm[selectedProjectIndex].features.join(', ') : (projectsForm[selectedProjectIndex].features || '')}
+                      onChange={(e) => {
+                        const updated = [...projectsForm];
+                        updated[selectedProjectIndex].features = e.target.value.split(',').map((f) => f.trim()).filter(Boolean);
+                        setProjectsForm(updated);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Project Amenities (Comma separated)</label>
+                    <input
+                      type="text"
+                      value={Array.isArray(projectsForm[selectedProjectIndex].amenities) ? projectsForm[selectedProjectIndex].amenities.join(', ') : (projectsForm[selectedProjectIndex].amenities || '')}
+                      onChange={(e) => {
+                        const updated = [...projectsForm];
+                        updated[selectedProjectIndex].amenities = e.target.value.split(',').map((f) => f.trim()).filter(Boolean);
+                        setProjectsForm(updated);
+                      }}
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
+                    />
+                  </div>
+                </div>
+
+                {/* Bottom Save Action Bar */}
+                <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/70 p-4 rounded-2xl">
+                  <div className="text-xs text-slate-600">
+                    <span className="font-bold text-slate-800">Ready to publish?</span> Click Save below to apply all project edits immediately to the live site.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveProjects}
+                    disabled={isSubmitting}
+                    className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-lg shadow-emerald-700/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>{isSubmitting ? 'Saving to Database...' : 'Save All Projects Changes (সংরক্ষণ করুন)'}</span>
+                  </button>
                 </div>
               </div>
             )}
