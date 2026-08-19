@@ -752,7 +752,7 @@ export default function AdminImagePanel() {
       });
 
       if (updated) {
-        await syncImageToContent(updated);
+        syncImageToContent(updated).catch((e) => console.warn('Content sync note:', e));
       }
 
       addToast('Image replaced and synced successfully across all browsers!', 'success');

@@ -171,15 +171,17 @@ export function ImageProvider({ children }) {
       try {
         finalSrc = await uploadAnyImageToFirebase(file, 'gallery');
       } catch (err) {
-        console.warn('Firebase Storage upload notice, falling back:', err);
+        console.warn('Firebase upload notice, falling back:', err);
+      }
+      if (!finalSrc) {
         try {
           const compressed = await compressAndResizeImage(file, 1200, 0.78);
           finalSrc = await fileToDataUrl(compressed || file);
         } catch {
-          finalSrc = await new Promise((resolve, reject) => {
+          finalSrc = await new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onerror = () => reject(new Error('Failed to read file'));
             reader.onload = () => resolve(reader.result);
+            reader.onerror = () => resolve('');
             reader.readAsDataURL(file);
           });
         }
@@ -187,6 +189,7 @@ export function ImageProvider({ children }) {
     }
 
     let updatedRecord = null;
+    let nextImages = [];
 
     setImages((prev) => {
       let found = false;
@@ -208,7 +211,6 @@ export function ImageProvider({ children }) {
         return img;
       });
 
-      // If id was not matched directly (e.g. slight mismatch), fallback to updated record
       if (!found && prev.length > 0) {
         const first = prev[0];
         updatedRecord = {
@@ -219,22 +221,27 @@ export function ImageProvider({ children }) {
         };
       }
 
-      syncImagesToFirestore(updated);
+      nextImages = updated;
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
       return updated;
     });
 
-    try {
-      await updateImageApi(id, {
-        ...(finalSrc ? { src: finalSrc } : {}),
-        title,
-        category,
-        alt,
-        span,
-        targetSection,
-      });
-    } catch {
-      // ignore
+    if (nextImages && nextImages.length > 0) {
+      syncImagesToFirestore(nextImages).catch((e) => console.warn('Firestore sync note:', e));
     }
+
+    updateImageApi(id, {
+      ...(finalSrc ? { src: finalSrc } : {}),
+      title,
+      category,
+      alt,
+      span,
+      targetSection,
+    }).catch(() => {});
 
     return updatedRecord || { id, src: finalSrc, title, category, alt, span, targetSection };
   }, []);

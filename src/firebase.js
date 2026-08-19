@@ -173,56 +173,71 @@ export async function compressAndResizeImage(file, maxDimension = 1200, quality 
     return file;
   }
   return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      resolve(file);
+    }, 1500);
+
     const img = new Image();
     const reader = new FileReader();
 
     reader.onload = (e) => {
       img.onload = () => {
-        let { width, height } = img;
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, width);
-        canvas.height = Math.max(1, height);
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        }
-
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const compressedFile = new File(
-                [blob],
-                (file.name || 'image.jpg').replace(/\.[^/.]+$/, '.jpg'),
-                {
-                  type: 'image/jpeg',
-                  lastModified: Date.now(),
-                }
-              );
-              resolve(compressedFile);
+        clearTimeout(timer);
+        try {
+          let { width, height } = img;
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
             } else {
-              resolve(file);
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
             }
-          },
-          'image/jpeg',
-          quality
-        );
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, width);
+          canvas.height = Math.max(1, height);
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          }
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File(
+                  [blob],
+                  (file.name || 'image.jpg').replace(/\.[^/.]+$/, '.jpg'),
+                  {
+                    type: 'image/jpeg',
+                    lastModified: Date.now(),
+                  }
+                );
+                resolve(compressedFile);
+              } else {
+                resolve(file);
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        } catch {
+          resolve(file);
+        }
       };
-      img.onerror = () => resolve(file);
+      img.onerror = () => {
+        clearTimeout(timer);
+        resolve(file);
+      };
       img.src = e.target?.result;
     };
-    reader.onerror = () => resolve(file);
+    reader.onerror = () => {
+      clearTimeout(timer);
+      resolve(file);
+    };
     reader.readAsDataURL(file);
   });
 }
