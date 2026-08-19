@@ -842,7 +842,7 @@ export default function AdminImagePanel() {
   const navTabs = [
     {
       id: 'projects',
-      label: '🏗️ Real Estate Projects',
+      label: 'Real Estate Projects',
       bnLabel: 'প্রকল্পসমূহ (৪টি প্রজেক্ট)',
       shortLabel: 'Projects',
       desc: 'Lake Valley Flower City, Duplex City & Resort Limited, Green Garden Resort & Bangla Tower',
@@ -853,7 +853,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'hero',
-      label: '🖼️ Hero Slider & Banner',
+      label: 'Hero Slider & Banner',
       bnLabel: 'হোম পেজের প্রধান স্লাইডার ও ব্যানার',
       shortLabel: 'Hero Slider',
       desc: 'Top homepage slider titles, images, and quick statistics',
@@ -864,7 +864,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'site',
-      label: '🏢 Site Branding & Contact',
+      label: 'Site Branding & Contact',
       bnLabel: 'লোগো, ফোন নম্বর ও যোগাযোগের ঠিকানা',
       shortLabel: 'Site & Contact',
       desc: 'Company logo, support email, phone numbers, office addresses & social links',
@@ -873,7 +873,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'media',
-      label: '📸 Media Library & Uploads',
+      label: 'Media Library & Uploads',
       bnLabel: 'ছবি আপলোড ও গ্যালারি লাইব্রেরি',
       shortLabel: 'Media Library',
       desc: 'Upload new images, manage website gallery photos and copy image URLs',
@@ -884,7 +884,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'messages',
-      label: '📩 Client Inquiries & Leads',
+      label: 'Client Inquiries & Leads',
       bnLabel: 'গ্রাহকদের বুকিং ও মেসেজ তালিকা',
       shortLabel: 'Client Inquiries',
       desc: 'Real-time customer inquiries, plot requests and contact form submissions',
@@ -895,7 +895,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'about',
-      label: '📖 About Us Page Content',
+      label: 'About Us Page Content',
       bnLabel: 'কোম্পানি সম্পর্কে ও চেয়ারম্যানের বাণী',
       shortLabel: 'About Us',
       desc: 'About story texts, mission, vision, chairman and advisor messages',
@@ -904,7 +904,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'amenities',
-      label: '🌟 Township Amenities',
+      label: 'Township Amenities',
       bnLabel: 'নাগরিক সুযোগ-সুবিধা সমূহ',
       shortLabel: 'Amenities',
       desc: 'Lakes, botanical gardens, sports club, security and civic facilities',
@@ -915,7 +915,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'why',
-      label: '💡 Why Choose Us',
+      label: 'Why Choose Us',
       bnLabel: 'কেন লেক ভ্যালি বেছে নেবেন',
       shortLabel: 'Why Choose Us',
       desc: 'Core highlights, green township benefits and legal assurances',
@@ -926,7 +926,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'testimonials',
-      label: '💬 Client Testimonials',
+      label: 'Client Testimonials',
       bnLabel: 'সন্তুষ্ট গ্রাহক ও প্রবাসীদের মতামত',
       shortLabel: 'Testimonials',
       desc: 'Customer quotes, reviews, ratings, and plot buyer stories',
@@ -937,7 +937,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'faqs',
-      label: '❓ FAQ Questions & Answers',
+      label: 'FAQ Questions & Answers',
       bnLabel: 'সাধারণ জিজ্ঞাসা ও উত্তর',
       shortLabel: 'FAQ Items',
       desc: 'Common buyer questions about registration, installment plans and handover',
@@ -948,7 +948,7 @@ export default function AdminImagePanel() {
     },
     {
       id: 'cta',
-      label: '📢 Call to Action & Banners',
+      label: 'Call to Action & Banners',
       bnLabel: 'কল টু অ্যাকশন ও বুকিং ব্যানার',
       shortLabel: 'Call to Action',
       desc: 'Bottom booking banner texts, contact buttons and hotline CTA',
@@ -1585,21 +1585,42 @@ export default function AdminImagePanel() {
               </div>
 
               <div className="md:col-span-2">
-                <ImageFieldPicker
-                  label="Site & Company Logo"
-                  description="Primary brand logo used in top navigation bar, footer, and loading screens"
-                  value={siteForm.logo}
-                  onChange={(newUrl) => setSiteForm({ ...siteForm, logo: newUrl })}
-                  aspectRatio="aspect-[4/1] max-w-sm"
-                  showPresets={true}
-                  customPresets={[
-                    { name: 'Standard Brand Logo', url: '/logo.png', badge: 'Default' },
-                    { name: 'Transparent Brand Logo', url: '/logo-transparent.png', badge: 'Transparent' },
-                    { name: 'Original High-Res Asset', url: '/Lake%20Valley%20Logo.png', badge: 'PNG' },
-                  ]}
-                  presetLabel="Official Brand Logo Variations:"
-                  modalTitle="Select Brand Logo"
-                />
+                <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-bold text-slate-800 uppercase tracking-wider">Official Brand Logo</label>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          Fixed & Permanent
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        The official Lake Valley Flower City logo is permanently locked and protected across navigation, footer, and brand headers.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-48 bg-slate-900 rounded-lg p-2.5 flex items-center justify-center border border-slate-800 shadow-inner">
+                        <img
+                          src="/logo.png"
+                          alt="Lake Valley Flower City Brand Logo"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">Primary Brand Mark (`/logo.png`)</p>
+                        <p className="text-[11px] text-slate-400 font-mono mt-0.5">Lake Valley Flower City — Official Master Vector / PNG</p>
+                      </div>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                      <span>Non-Replaceable</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>

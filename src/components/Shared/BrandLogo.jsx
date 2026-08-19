@@ -31,9 +31,12 @@ export default function BrandLogo({
   };
 
   const fallbackSources = [
+    '/Lake%20Valley%20Flower%20City%20Logo_Alpha-.png',
+    '/Lake Valley Flower City Logo_Alpha-.png',
     cleanUrl(rawLogo),
     '/logo.png',
     '/logo-transparent.png',
+    '/logo.svg',
     '/Lake%20Valley%20Logo.png',
     '/Lake%20Valley%20Logo%20Transparent.png',
   ];

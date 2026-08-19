@@ -1,0 +1,176 @@
+import fs from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+
+const svgLogo = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&amp;family=Caveat:wght@700&amp;family=Alex+Brush&amp;family=Great+Vibes&amp;family=Inter:ital,wght@1,700;1,800&amp;display=swap');
+      .serif-green {
+        font-family: 'Playfair Display', 'Cinzel', 'Georgia', serif;
+        fill: #1a6b41;
+      }
+      .script-red {
+        font-family: 'Great Vibes', 'Alex Brush', 'Caveat', cursive;
+        fill: #c52229;
+      }
+      .tagline-black {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-style: italic;
+        font-weight: 800;
+        fill: #0f172a;
+      }
+    </style>
+    <radialGradient id="sunCore" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#8a5323" />
+      <stop offset="65%" stop-color="#693c14" />
+      <stop offset="100%" stop-color="#492709" />
+    </radialGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2d8a4e" />
+      <stop offset="100%" stop-color="#14522d" />
+    </linearGradient>
+    <linearGradient id="redSwooshGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c52229" />
+      <stop offset="100%" stop-color="#a1151c" />
+    </linearGradient>
+  </defs>
+
+  <!-- SUNFLOWER GRAPHIC COMPONENT -->
+  <g transform="translate(485, 350)">
+    <!-- Leaves behind petals -->
+    <path d="M-85 -10 Q-140 -40 -120 -95 Q-70 -70 -65 -15 Z" fill="url(#leafGrad)" />
+    <path d="M55 45 Q110 80 135 35 Q90 10 45 35 Z" fill="url(#leafGrad)" />
+    <path d="M-40 60 Q-80 110 -35 125 Q-10 80 -30 50 Z" fill="url(#leafGrad)" />
+
+    <!-- Outer Petal Ring (Golden Amber #f5a623 & #f8b600) -->
+    <!-- 16 petals around circle radius 75 -->
+    <g fill="#f8b600" stroke="#e09200" stroke-width="1.5">
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(22.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(45)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(67.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(90)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(112.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(135)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(157.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(180)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(202.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(225)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(247.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(270)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(292.5)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(315)" />
+      <path d="M0 0 C-18 -60 -12 -125 0 -140 C12 -125 18 -60 0 0" transform="rotate(337.5)" />
+    </g>
+
+    <!-- Inner Petal Layer (Vibrant Sunflower Yellow #ffd200) -->
+    <g fill="#ffd200" stroke="#f5a623" stroke-width="1.2">
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(11.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(33.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(56.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(78.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(101.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(123.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(146.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(168.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(191.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(213.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(236.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(258.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(281.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(303.75)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(326.25)" />
+      <path d="M0 0 C-14 -50 -10 -105 0 -120 C10 -105 14 -50 0 0" transform="rotate(348.75)" />
+    </g>
+
+    <!-- Brown Textured Seed Disc -->
+    <circle cx="0" cy="0" r="55" fill="url(#sunCore)" stroke="#533215" stroke-width="2" />
+    <circle cx="0" cy="0" r="46" fill="none" stroke="#a3662d" stroke-width="3" stroke-dasharray="3,4" />
+    <circle cx="0" cy="0" r="36" fill="none" stroke="#693c14" stroke-width="2.5" stroke-dasharray="3,3" />
+    <circle cx="0" cy="0" r="26" fill="none" stroke="#a3662d" stroke-width="2" stroke-dasharray="2,3" />
+    <circle cx="0" cy="0" r="14" fill="#492709" />
+  </g>
+
+  <!-- TYPOGRAPHY: Lake Valley (Small Caps Top Bar) -->
+  <g transform="translate(595, 442)">
+    <text font-family="'Playfair Display', 'Cinzel', serif" font-size="78" font-weight="900" fill="#1a6b41" letter-spacing="1">Lake Valley</text>
+    <!-- Flourish underline connecting sunflower to city -->
+    <path d="M-60 12 Q140 32 380 12" fill="none" stroke="#1a6b41" stroke-width="4.5" stroke-linecap="round" />
+  </g>
+
+  <!-- TYPOGRAPHY: Flower (Large Bold Serif) -->
+  <g transform="translate(165, 615)">
+    <text class="serif-green" font-size="240" font-weight="900" letter-spacing="-2">Flower</text>
+  </g>
+
+  <!-- TYPOGRAPHY: City (Dynamic Cursive Script) -->
+  <!-- Hand-drawn SVG path for perfect script rendering of 'City' -->
+  <g transform="translate(980, 480)">
+    <path d="M30 45 C15 30 -5 10 -5 -25 C-5 -65 25 -105 85 -105 C145 -105 165 -65 140 -20 C125 8 95 25 70 30 C125 25 155 -15 165 -45 C170 -60 178 -60 180 -45 C185 -10 145 55 75 55 C35 55 10 40 30 45 Z" fill="#c52229" />
+    
+    <!-- Capital C main sweep -->
+    <path d="M95 -90 C50 -90 15 -50 15 0 C15 70 65 125 135 125 C185 125 230 95 245 65 C250 55 240 48 232 55 C210 78 175 102 135 102 C85 102 45 58 45 0 C45 -48 72 -75 105 -75 C135 -75 155 -55 150 -30 C145 -10 125 5 105 5 C95 5 88 0 92 -10 C98 -22 112 -28 120 -28 C125 -28 128 -25 125 -18 C120 -5 105 0 95 -5 C80 -12 75 -35 85 -55 C95 -75 118 -85 138 -75 C142 -72 145 -78 140 -82 C128 -90 110 -90 95 -90 Z" fill="#c52229" />
+    
+    <!-- 'i' and 't' and 'y' cursive flow -->
+    <!-- 'i' -->
+    <path d="M245 65 C255 45 270 20 280 20 C290 20 285 35 275 60 C270 72 275 80 285 80 C298 80 315 60 325 35 L332 38 C320 68 298 92 278 92 C260 92 250 78 258 55 Z" fill="#c52229" />
+    <circle cx="296" cy="-2" r="9" fill="#c52229" />
+
+    <!-- 't' -->
+    <path d="M335 45 C355 -15 365 -65 372 -75 C378 -82 388 -75 385 -60 C378 -35 365 25 355 60 C350 75 355 82 365 82 C380 82 405 55 418 25 L425 30 C408 68 378 95 355 95 C335 95 325 78 335 45 Z" fill="#c52229" />
+    <!-- Crossbar for 't' -->
+    <path d="M330 -15 Q375 -25 415 -18 C422 -16 422 -8 415 -10 Q375 -15 330 -5 C322 -4 322 -13 330 -15 Z" fill="#c52229" />
+
+    <!-- 'y' with sweeping bottom loop -->
+    <path d="M420 30 C435 5 450 -10 465 -10 C478 -10 475 10 462 40 C452 65 458 75 468 75 C480 75 500 50 512 25 L520 30 C505 65 480 88 458 88 C440 88 430 75 438 52 L450 25 C455 12 450 5 442 5 C432 5 420 20 410 40 Z" fill="#c52229" />
+    <!-- 'y' descender and under-loop -->
+    <path d="M510 32 C525 0 535 -15 545 -15 C552 -15 550 -2 542 18 L495 135 C475 185 445 245 405 285 C370 320 335 330 315 315 C295 300 300 270 320 238 C355 185 415 110 480 50 L495 18 C500 8 495 5 488 12 C478 22 468 40 460 55 L452 48 C465 28 480 8 495 -5 C508 -18 525 -12 518 8 L482 95 C430 148 375 215 345 258 C330 280 325 298 335 305 C345 312 368 305 395 278 C430 242 460 188 482 135 Z" fill="#c52229" />
+  </g>
+
+  <!-- TYPOGRAPHY: The Address of Happiness -->
+  <g transform="translate(165, 672)">
+    <text class="tagline-black" font-size="54" font-style="italic" font-weight="900" letter-spacing="0.5">The Address of Happiness</text>
+  </g>
+
+  <!-- DYNAMIC RED SWOOSH UNDERLINE -->
+  <path d="M160 670 C240 730 460 755 680 735 C800 725 890 705 950 725 C880 718 780 735 660 748 C440 770 230 745 160 670 Z" fill="url(#redSwooshGrad)" />
+</svg>
+`;
+
+async function main() {
+  const publicDir = path.join(process.cwd(), 'public');
+  const distDir = path.join(process.cwd(), 'dist');
+
+  fs.writeFileSync(path.join(publicDir, 'logo.svg'), svgLogo);
+  console.log('Wrote public/logo.svg');
+
+  const pngBuffer = await sharp(Buffer.from(svgLogo))
+    .resize(1600, 900, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png({ quality: 100, compressionLevel: 9 })
+    .toBuffer();
+
+  const targetFiles = [
+    path.join(publicDir, 'logo.png'),
+    path.join(publicDir, 'logo-transparent.png'),
+    path.join(publicDir, 'Lake Valley Logo.png'),
+    path.join(publicDir, 'Lake Valley Logo Transparent.png'),
+  ];
+
+  if (fs.existsSync(distDir)) {
+    targetFiles.push(
+      path.join(distDir, 'logo.png'),
+      path.join(distDir, 'logo-transparent.png'),
+      path.join(distDir, 'Lake Valley Logo.png'),
+      path.join(distDir, 'Lake Valley Logo Transparent.png')
+    );
+  }
+
+  for (const file of targetFiles) {
+    fs.writeFileSync(file, pngBuffer);
+    console.log(`Updated ${file}`);
+  }
+}
+
+main().catch(console.error);

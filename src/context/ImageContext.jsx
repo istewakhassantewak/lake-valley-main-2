@@ -63,22 +63,12 @@ export function ImageProvider({ children }) {
       try {
         const backendData = await fetchAllImages();
         if (isMounted && backendData && Array.isArray(backendData) && backendData.length > 0) {
-          const localSaved = getStoredImageSaveTime();
-          setImages((prev) => {
-            // If local images have custom additions/edits, merge them cleanly by ID
-            if (localSaved > 0 && Array.isArray(prev) && prev.length > 0) {
-              const localIds = new Set(prev.map((img) => img.id));
-              const combined = [...prev];
-              backendData.forEach((bImg) => {
-                if (!localIds.has(bImg.id)) {
-                  combined.push(bImg);
-                }
-              });
-              syncImagesToFirestore(combined).catch(() => {});
-              return combined;
-            }
-            return backendData;
-          });
+          setImages(backendData);
+          try {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(backendData));
+          } catch {
+            // ignore
+          }
         }
       } catch (err) {
         console.warn('Backend image sync warning:', err);
@@ -91,20 +81,12 @@ export function ImageProvider({ children }) {
     // Real-time synchronization across all tabs and browsers
     const unsubscribe = subscribeToImageChanges((liveImages) => {
       if (isMounted && Array.isArray(liveImages) && liveImages.length > 0) {
-        setImages((prev) => {
-          const localSaved = getStoredImageSaveTime();
-          if (localSaved > 0 && Array.isArray(prev) && prev.length > 0) {
-            const liveIds = new Set(liveImages.map((img) => img.id));
-            const merged = [...liveImages];
-            prev.forEach((pImg) => {
-              if (!liveIds.has(pImg.id)) {
-                merged.unshift(pImg);
-              }
-            });
-            return merged;
-          }
-          return liveImages;
-        });
+        setImages(liveImages);
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(liveImages));
+        } catch {
+          // ignore
+        }
       }
     });
 

@@ -355,6 +355,15 @@ export function sanitizeProjectsAndHero(data) {
   if (!data || typeof data !== 'object') return defaultContentState;
   const cleaned = { ...defaultContentState, ...data };
 
+  // Always keep brand logo fixed & immutable to official brand asset
+  if (cleaned.site) {
+    cleaned.site = {
+      ...defaultContentState.site,
+      ...cleaned.site,
+      logo: '/logo.png',
+    };
+  }
+
   // If projects is provided as an array, preserve all user edits and ensure valid structure
   if (Array.isArray(data.projects) && data.projects.length > 0) {
     cleaned.projects = data.projects.map((p, idx) => {
@@ -447,16 +456,15 @@ export function ContentProvider({ children }) {
         setContent((prev) => {
           const mergedIncoming = { ...prev };
           const storedTimestamps = getStoredTimestamps();
-          let needsBackSync = false;
 
           Object.keys(res).forEach((key) => {
             if (key === 'lastUpdated' || key === 'updatedSection' || key === 'resetAt') return;
             const localSavedTime = storedTimestamps[key] || lastLocalSaves.current[key] || 0;
             const cloudUpdateTime = res[key]?.lastUpdated || res.lastUpdated ? new Date(res[key]?.lastUpdated || res.lastUpdated).getTime() : 0;
 
-            // If this section was saved locally and local version is newer than cloud version, keep local
-            if (localSavedTime > 0 && localSavedTime > cloudUpdateTime) {
-              needsBackSync = true;
+            // Only skip cloud update if the user made a local edit within the last 5 seconds that hasn't synced yet
+            const isVeryRecentLocalEdit = localSavedTime > 0 && Date.now() - localSavedTime < 5000 && localSavedTime > cloudUpdateTime;
+            if (isVeryRecentLocalEdit) {
               return;
             }
 
@@ -470,10 +478,6 @@ export function ContentProvider({ children }) {
             localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
           } catch {
             // ignore
-          }
-
-          if (needsBackSync) {
-            updateContentApi(merged).catch(() => {});
           }
 
           return merged;
@@ -501,8 +505,9 @@ export function ContentProvider({ children }) {
             const localSavedTime = storedTimestamps[key] || lastLocalSaves.current[key] || 0;
             const cloudUpdateTime = liveContent[key]?.lastUpdated || liveContent.lastUpdated ? new Date(liveContent[key]?.lastUpdated || liveContent.lastUpdated).getTime() : 0;
 
-            // Do not let older snapshot overwrite recent local updates
-            if (localSavedTime > 0 && localSavedTime > cloudUpdateTime) {
+            // Only skip snapshot if an in-flight edit just happened (< 3 seconds)
+            const isVeryRecentLocalEdit = localSavedTime > 0 && Date.now() - localSavedTime < 3000 && localSavedTime > cloudUpdateTime;
+            if (isVeryRecentLocalEdit) {
               return;
             }
 

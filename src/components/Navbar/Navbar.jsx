@@ -126,22 +126,22 @@ export default function Navbar() {
         className={cn(
           'sticky top-0 left-0 right-0 z-50 transition-all duration-300 select-none',
           scrolled
-            ? 'bg-white/95 backdrop-blur-xl shadow-md shadow-slate-900/5 py-1.5 border-b border-slate-200/90'
-            : 'bg-white/95 backdrop-blur-md py-2 border-b border-slate-200/60'
+            ? 'bg-white/95 backdrop-blur-xl shadow-md shadow-slate-900/5 py-0.5 border-b border-slate-200/90'
+            : 'bg-white/95 backdrop-blur-md py-0.5 md:py-1 border-b border-slate-200/60'
         )}
       >
         <nav
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between py-0"
           aria-label="Main navigation"
         >
           {/* Brand Logo & Tagline */}
           <Link
             to="/"
-            className="flex items-center gap-3 group focus:outline-hidden py-0.5"
+            className="flex items-center gap-3 group focus:outline-hidden py-0"
             aria-label={site?.siteName || 'Lake Valley Flower City'}
           >
-            <div className="relative">
-              <BrandLogo className="h-10 sm:h-11 md:h-12 lg:h-12 w-auto max-w-[190px] sm:max-w-[220px] md:max-w-[250px] object-contain transition-transform duration-300 group-hover:scale-105" />
+            <div className="relative flex items-center">
+              <BrandLogo className="h-16 sm:h-18 md:h-20 lg:h-24 w-auto max-w-[280px] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[480px] object-contain transition-transform duration-300 group-hover:scale-105" />
             </div>
           </Link>
 
@@ -274,7 +274,7 @@ export default function Navbar() {
               {/* Drawer Top Header */}
               <div>
                 <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                  <BrandLogo className="h-11 sm:h-12 w-auto max-w-[200px] object-contain" />
+                  <BrandLogo className="h-16 sm:h-18 w-auto max-w-[280px] object-contain" />
                   <button
                     type="button"
                     onClick={() => setMobileOpen(false)}

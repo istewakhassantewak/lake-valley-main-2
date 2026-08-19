@@ -18,11 +18,14 @@ const NotFoundPage = lazy(() => import('../pages/NotFound/NotFoundPage.jsx'));
 
 function PageLoader() {
   return (
-    <div className="min-h-[50vh] flex flex-col items-center justify-center gap-3 py-12">
-      <BrandLogo className="h-12 w-auto animate-pulse" />
-      <div className="w-24 h-1 bg-emerald-brand/20 rounded-full overflow-hidden">
-        <div className="h-full bg-emerald-brand rounded-full animate-pulse" />
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 py-16 bg-white select-none">
+      <BrandLogo className="h-14 sm:h-16 w-auto max-w-[260px] object-contain drop-shadow-xs animate-pulse" />
+      <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80 shadow-2xs">
+        <div className="h-full bg-gradient-to-r from-emerald-600 to-teal-500 rounded-full animate-pulse" />
       </div>
+      <span className="text-[11px] font-semibold text-slate-400 tracking-wide uppercase">
+        Loading Lake Valley...
+      </span>
     </div>
   );
 }

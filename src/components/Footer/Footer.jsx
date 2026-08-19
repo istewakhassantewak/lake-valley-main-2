@@ -22,7 +22,7 @@ export default function Footer() {
           {/* Company */}
           <div>
             <Link to="/" className="inline-block mb-5 group">
-              <BrandLogo className="h-14 md:h-16 w-auto max-w-[280px] object-contain group-hover:scale-105" />
+              <BrandLogo className="h-16 md:h-20 w-auto max-w-[320px] object-contain group-hover:scale-105" />
             </Link>
             <p className="text-slate-600 text-sm leading-relaxed mb-5">
               {site?.companyName || 'Lake Valley Duplex & Resort Ltd.'} — {site?.tagline || 'building Bangladesh\'s premier eco-friendly integrated township.'}

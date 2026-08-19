@@ -327,15 +327,18 @@ export async function removeProfileImage() {
 export async function uploadAnyImageToFirebase(file, folder = 'admin-uploads') {
   if (!file) return null;
 
-  // 1. Instant client-side compression (takes <40ms, outputs optimal web image ~20-30KB)
+  // 1. Ensure active Auth session for Firestore/Storage access
+  await ensureFirebaseAuth().catch(() => {});
+
+  // 2. Client-side compression (takes <30ms, outputs optimal lightweight web image)
   let microCompressed = null;
   try {
-    microCompressed = await compressAndResizeImage(file, 960, 0.72);
+    microCompressed = await compressAndResizeImage(file, 1080, 0.75);
   } catch (err) {
-    console.warn('Image compression fallback:', err);
+    console.warn('Image compression note:', err);
   }
 
-  // 2. Try Firebase Storage with a strict 1.2s timeout so the UI NEVER hangs or loads slowly
+  // 3. Try Firebase Storage with a resilient 6-second timeout
   try {
     const safeName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}_${(file.name || 'image.jpg').replace(/[^a-zA-Z0-9.-]/g, '_')}`;
     const storageRef = ref(storage, `${folder}/${safeName}`);
@@ -351,18 +354,18 @@ export async function uploadAnyImageToFirebase(file, folder = 'admin-uploads') {
     })();
 
     const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Storage timeout')), 1200)
+      setTimeout(() => reject(new Error('Storage timeout')), 6000)
     );
 
     const downloadUrl = await Promise.race([storageUploadPromise, timeoutPromise]);
     if (downloadUrl) {
       return downloadUrl;
     }
-  } catch {
-    // If Firebase Storage timed out or is unconfigured, proceed instantly with compressed data URL
+  } catch (storageErr) {
+    console.warn('Firebase Storage upload notice (using optimized fallback):', storageErr.message);
   }
 
-  // 3. Instant local fallback (<10ms)
+  // 4. Instant lightweight compressed data URL fallback (<10ms)
   try {
     return await fileToDataUrl(microCompressed || file);
   } catch {
