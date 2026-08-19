@@ -67,18 +67,7 @@ export default function ImageFieldPicker({
 
     setIsUploading(true);
     try {
-      let finalUrl = '';
-      try {
-        finalUrl = await uploadAnyImageToFirebase(file, 'section-assets');
-      } catch (uploadErr) {
-        console.warn('Firebase storage upload failed, falling back to compressed data URL:', uploadErr);
-      }
-
-      if (!finalUrl) {
-        const compressed = await compressAndResizeImage(file, 1200, 0.78);
-        finalUrl = await fileToDataUrl(compressed || file);
-      }
-
+      const finalUrl = await uploadAnyImageToFirebase(file, 'section-assets');
       if (finalUrl && onChange) {
         onChange(finalUrl);
       }

@@ -85,26 +85,7 @@ export function ImageProvider({ children }) {
 
   // Upload image file (uploads to Firebase Storage / CDN, updates Firestore and state)
   const uploadImageFile = useCallback(async ({ file, title, category, alt, span, targetSection }) => {
-    let uploadedUrl = '';
-    try {
-      uploadedUrl = await uploadAnyImageToFirebase(file, 'gallery');
-    } catch (err) {
-      console.warn('Firebase storage upload failed, using compression fallback:', err);
-    }
-
-    if (!uploadedUrl) {
-      try {
-        const compressed = await compressAndResizeImage(file, 1200, 0.78);
-        uploadedUrl = await fileToDataUrl(compressed || file);
-      } catch {
-        uploadedUrl = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = () => resolve('');
-          reader.readAsDataURL(file);
-        });
-      }
-    }
+    const uploadedUrl = await uploadAnyImageToFirebase(file, 'gallery');
 
     const newImg = {
       id: `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -193,24 +174,7 @@ export function ImageProvider({ children }) {
     let finalSrc = src;
 
     if (file) {
-      try {
-        finalSrc = await uploadAnyImageToFirebase(file, 'gallery');
-      } catch (err) {
-        console.warn('Firebase upload notice, falling back:', err);
-      }
-      if (!finalSrc) {
-        try {
-          const compressed = await compressAndResizeImage(file, 1200, 0.78);
-          finalSrc = await fileToDataUrl(compressed || file);
-        } catch {
-          finalSrc = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = () => resolve('');
-            reader.readAsDataURL(file);
-          });
-        }
-      }
+      finalSrc = await uploadAnyImageToFirebase(file, 'gallery');
     }
 
     let updatedRecord = null;
