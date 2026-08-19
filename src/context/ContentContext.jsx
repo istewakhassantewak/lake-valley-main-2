@@ -357,17 +357,19 @@ export function sanitizeProjectsAndHero(data) {
 
   // If projects is provided as an array, preserve all user edits and ensure valid structure
   if (Array.isArray(data.projects) && data.projects.length > 0) {
-    cleaned.projects = data.projects.map((p) => {
+    cleaned.projects = data.projects.map((p, idx) => {
       if (!p || typeof p !== 'object') return p;
+      const desc = p.fullDescription || p.description || '';
       return {
         ...p,
-        id: p.id || p.slug || `proj-${Date.now()}`,
-        slug: p.slug || p.id || 'project',
-        title: p.title || 'Untitled Project',
+        id: p.id || p.slug || `proj-${idx + 1}`,
+        slug: p.slug || p.id || `proj-${idx + 1}`,
+        title: p.title || `Project #${idx + 1}`,
         titleBn: p.titleBn || '',
         tagline: p.tagline || '',
         shortDescription: p.shortDescription || '',
-        description: p.description || p.fullDescription || '',
+        description: desc,
+        fullDescription: desc,
         image: p.image || '',
         heroImage: p.heroImage || p.image || '',
         features: Array.isArray(p.features) ? p.features : [],

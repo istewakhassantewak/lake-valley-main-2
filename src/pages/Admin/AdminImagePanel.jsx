@@ -335,16 +335,40 @@ export default function AdminImagePanel() {
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
 
   useEffect(() => {
-    if (contentProjects) {
-      setProjectsForm(JSON.parse(JSON.stringify(contentProjects)));
+    if (contentProjects && Array.isArray(contentProjects) && contentProjects.length > 0) {
+      setProjectsForm(
+        contentProjects.map((p, idx) => {
+          const desc = p.fullDescription || p.description || '';
+          return {
+            ...p,
+            id: p.id || p.slug || `lake-valley-project-${idx + 1}`,
+            slug: p.slug || p.id || `lake-valley-project-${idx + 1}`,
+            description: desc,
+            fullDescription: desc,
+            image: p.image || '',
+            heroImage: p.heroImage || p.image || '',
+          };
+        })
+      );
     }
   }, [contentProjects]);
 
   const handleSaveProjects = async () => {
     setIsSubmitting(true);
     try {
-      await updateSection('projects', projectsForm);
-      addToast('Projects and cover/banner images saved successfully!', 'success');
+      const sanitizedProjects = projectsForm.map((p, idx) => {
+        const desc = p.fullDescription || p.description || '';
+        return {
+          ...p,
+          id: p.id || p.slug || `lake-valley-project-${idx + 1}`,
+          slug: p.slug || p.id || `lake-valley-project-${idx + 1}`,
+          description: desc,
+          fullDescription: desc,
+        };
+      });
+      setProjectsForm(sanitizedProjects);
+      await updateSection('projects', sanitizedProjects);
+      addToast('✓ Projects, pricing and images saved successfully!', 'success');
     } catch (err) {
       addToast('Failed to save projects: ' + err.message, 'error');
     } finally {
@@ -612,12 +636,13 @@ export default function AdminImagePanel() {
 
     try {
       if (
+        title &&
         contentProjects &&
-        (target === 'project' || contentProjects.some((p) => title.includes((p.title || '').toLowerCase())))
+        contentProjects.some((p) => title.includes((p.title || '').toLowerCase()))
       ) {
         const updatedProjects = contentProjects.map((p) => {
           const pTitle = (p.title || '').toLowerCase();
-          if (target === 'project' || (title && (title.includes(pTitle) || pTitle.includes(title)))) {
+          if (pTitle && (title.includes(pTitle) || pTitle.includes(title))) {
             return {
               ...p,
               image: imgData.src || p.image,
@@ -2163,10 +2188,14 @@ export default function AdminImagePanel() {
                     <label className="block text-xs font-semibold text-slate-700 mb-1">Full Detailed Description</label>
                     <textarea
                       rows={4}
-                      value={projectsForm[selectedProjectIndex].fullDescription || ''}
+                      value={projectsForm[selectedProjectIndex]?.fullDescription || projectsForm[selectedProjectIndex]?.description || ''}
                       onChange={(e) => {
                         const updated = [...projectsForm];
-                        updated[selectedProjectIndex].fullDescription = e.target.value;
+                        updated[selectedProjectIndex] = {
+                          ...updated[selectedProjectIndex],
+                          description: e.target.value,
+                          fullDescription: e.target.value,
+                        };
                         setProjectsForm(updated);
                       }}
                       className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-brand/30"
