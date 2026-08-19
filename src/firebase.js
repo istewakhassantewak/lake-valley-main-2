@@ -50,27 +50,10 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
  * Ensures the client has an active Firebase Auth session (authenticated or anonymous).
  * This enables seamless Firestore database reading and writing across all browsers.
  */
-let authPromise = null;
 export async function ensureFirebaseAuth() {
   if (auth.currentUser) return auth.currentUser;
-  if (!authPromise) {
-    authPromise = (async () => {
-      try {
-        const cred = await signInAnonymously(auth);
-        return cred.user;
-      } catch (err) {
-        // If anonymous auth is not enabled in Firebase Console, fallback silently
-        return auth.currentUser || null;
-      } finally {
-        authPromise = null;
-      }
-    })();
-  }
-  return authPromise;
+  return null;
 }
-
-// Auto-initialize auth session in the background
-ensureFirebaseAuth().catch(() => {});
 
 // Check redirect result on load
 getRedirectResult(auth).catch((err) => {
@@ -242,37 +225,22 @@ export async function compressAndResizeImage(file, maxDimension = 1200, quality 
   });
 }
 
-export async function uploadProfileImage(file, folder = 'avatars') {
+export async function uploadProfileImage(file) {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type) && !file.type.startsWith('image/')) {
     throw new Error('Only JPEG, PNG, and WebP images are allowed');
   }
 
   let processedFile = file;
-  if (file.size > 300 * 1024) {
-    try {
-      processedFile = await compressAndResizeImage(file, 1000, 0.82);
-    } catch {
-      // compression fallback
-    }
-  }
-
-  if (processedFile.size > 5 * 1024 * 1024) {
-    throw new Error('Image is too large even after compression. Please select a smaller photo.');
+  try {
+    processedFile = await compressAndResizeImage(file, 800, 0.80);
+  } catch {
+    // compression fallback
   }
 
   const user = auth.currentUser;
   if (!user) throw new Error('Not authenticated');
 
-  let url = '';
-  try {
-    const ext = processedFile.name.split('.').pop() || 'jpg';
-    const storageRef = ref(storage, `${folder}/${user.uid}/${Date.now()}.${ext}`);
-    await uploadBytes(storageRef, processedFile, { contentType: processedFile.type });
-    url = await getDownloadURL(storageRef);
-  } catch (storageError) {
-    console.warn('Firebase Storage upload failed, converting to data URL fallback:', storageError);
-    url = await fileToDataUrl(processedFile);
-  }
+  const url = await fileToDataUrl(processedFile);
 
   try {
     await updateProfile(user, { photoURL: url });
@@ -289,30 +257,16 @@ export async function uploadBannerImage(file) {
   }
 
   let processedFile = file;
-  if (file.size > 300 * 1024) {
-    try {
-      processedFile = await compressAndResizeImage(file, 1600, 0.82);
-    } catch {
-      // compression fallback
-    }
-  }
-
-  if (processedFile.size > 5 * 1024 * 1024) {
-    throw new Error('Image is too large even after compression. Please select a smaller photo.');
+  try {
+    processedFile = await compressAndResizeImage(file, 1400, 0.80);
+  } catch {
+    // compression fallback
   }
 
   const user = auth.currentUser;
   if (!user) throw new Error('Not authenticated');
 
-  try {
-    const ext = processedFile.name.split('.').pop() || 'jpg';
-    const storageRef = ref(storage, `banners/${user.uid}/${Date.now()}.${ext}`);
-    await uploadBytes(storageRef, processedFile, { contentType: processedFile.type });
-    return await getDownloadURL(storageRef);
-  } catch (err) {
-    console.warn('Firebase Storage banner upload failed, converting to data URL fallback:', err);
-    return await fileToDataUrl(processedFile);
-  }
+  return await fileToDataUrl(processedFile);
 }
 
 export async function linkPasswordAccount(newPassword) {
@@ -365,26 +319,16 @@ export async function removeProfileImage() {
   return true;
 }
 
-export async function uploadAnyImageToFirebase(file, folder = 'site-assets') {
+export async function uploadAnyImageToFirebase(file) {
   if (!file) return null;
-  await ensureFirebaseAuth().catch(() => {});
-
-  let processedFile = file;
-  try {
-    processedFile = await compressAndResizeImage(file, 1400, 0.80);
-  } catch (err) {
-    console.warn('Compression notice:', err);
-  }
 
   try {
-    const ext = (processedFile.name || 'image.jpg').split('.').pop() || 'jpg';
-    const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-    const storageRef = ref(storage, `${folder}/${filename}`);
-    await uploadBytes(storageRef, processedFile, { contentType: processedFile.type || 'image/jpeg' });
-    return await getDownloadURL(storageRef);
+    const compressed = await compressAndResizeImage(file, 1280, 0.78);
+    const dataUrl = await fileToDataUrl(compressed || file);
+    return dataUrl;
   } catch (err) {
-    console.warn('Firebase Storage upload notice, converting to optimized data URL fallback:', err?.message || err);
-    return await fileToDataUrl(processedFile);
+    console.warn('Image processing fallback:', err);
+    return await fileToDataUrl(file);
   }
 }
 
