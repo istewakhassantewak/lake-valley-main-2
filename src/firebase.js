@@ -52,7 +52,12 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
  */
 export async function ensureFirebaseAuth() {
   if (auth.currentUser) return auth.currentUser;
-  return null;
+  try {
+    const cred = await signInAnonymously(auth);
+    return cred.user;
+  } catch (err) {
+    return null;
+  }
 }
 
 // Check redirect result on load

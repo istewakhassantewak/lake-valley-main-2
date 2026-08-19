@@ -401,6 +401,16 @@ export function sanitizeProjectsAndHero(data) {
 
 const ContentContext = createContext(null);
 const LOCAL_CONTENT_KEY = 'lv_managed_content_v3';
+const LOCAL_TIMESTAMPS_KEY = 'lv_content_timestamps_v3';
+
+function getStoredTimestamps() {
+  try {
+    const raw = localStorage.getItem(LOCAL_TIMESTAMPS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
 
 export function ContentProvider({ children }) {
   const [content, setContent] = useState(() => {
@@ -418,7 +428,7 @@ export function ContentProvider({ children }) {
     return defaultContentState;
   });
   const [loading, setLoading] = useState(true);
-  const lastLocalSaves = useRef({});
+  const lastLocalSaves = useRef(getStoredTimestamps());
 
   // Sync state to LocalStorage on change
   useEffect(() => {
@@ -435,17 +445,24 @@ export function ContentProvider({ children }) {
       const res = await fetchContentApi();
       if (res && typeof res === 'object' && Object.keys(res).length > 0) {
         setContent((prev) => {
-          // Merge incoming cloud data while protecting any sections saved in the last 8 seconds
           const mergedIncoming = { ...prev };
-          const now = Date.now();
+          const storedTimestamps = getStoredTimestamps();
+          let needsBackSync = false;
 
           Object.keys(res).forEach((key) => {
-            const lastSave = lastLocalSaves.current[key];
-            if (lastSave && now - lastSave < 8000) {
-              // Section was modified locally within the last 8s, preserve local copy
+            if (key === 'lastUpdated' || key === 'updatedSection' || key === 'resetAt') return;
+            const localSavedTime = storedTimestamps[key] || lastLocalSaves.current[key] || 0;
+            const cloudUpdateTime = res[key]?.lastUpdated || res.lastUpdated ? new Date(res[key]?.lastUpdated || res.lastUpdated).getTime() : 0;
+
+            // If this section was saved locally and local version is newer than cloud version, keep local
+            if (localSavedTime > 0 && localSavedTime > cloudUpdateTime) {
+              needsBackSync = true;
               return;
             }
-            mergedIncoming[key] = res[key];
+
+            if (res[key] !== undefined && res[key] !== null) {
+              mergedIncoming[key] = res[key];
+            }
           });
 
           const merged = sanitizeProjectsAndHero(mergedIncoming);
@@ -454,6 +471,11 @@ export function ContentProvider({ children }) {
           } catch {
             // ignore
           }
+
+          if (needsBackSync) {
+            updateContentApi(merged).catch(() => {});
+          }
+
           return merged;
         });
       }
@@ -471,17 +493,22 @@ export function ContentProvider({ children }) {
     const unsubscribe = subscribeToContentChanges((liveContent) => {
       if (liveContent && typeof liveContent === 'object' && Object.keys(liveContent).length > 0) {
         setContent((prev) => {
-          const now = Date.now();
           const mergedIncoming = { ...prev };
+          const storedTimestamps = getStoredTimestamps();
 
           Object.keys(liveContent).forEach((key) => {
-            if (key === 'lastUpdated' || key === 'updatedSection') return;
-            const lastSave = lastLocalSaves.current[key];
-            // If this section was saved locally less than 8 seconds ago, don't overwrite with listener snapshot
-            if (lastSave && now - lastSave < 8000) {
+            if (key === 'lastUpdated' || key === 'updatedSection' || key === 'resetAt') return;
+            const localSavedTime = storedTimestamps[key] || lastLocalSaves.current[key] || 0;
+            const cloudUpdateTime = liveContent[key]?.lastUpdated || liveContent.lastUpdated ? new Date(liveContent[key]?.lastUpdated || liveContent.lastUpdated).getTime() : 0;
+
+            // Do not let older snapshot overwrite recent local updates
+            if (localSavedTime > 0 && localSavedTime > cloudUpdateTime) {
               return;
             }
-            mergedIncoming[key] = liveContent[key];
+
+            if (liveContent[key] !== undefined && liveContent[key] !== null) {
+              mergedIncoming[key] = liveContent[key];
+            }
           });
 
           const merged = sanitizeProjectsAndHero(mergedIncoming);
@@ -501,14 +528,36 @@ export function ContentProvider({ children }) {
   }, [loadContent]);
 
   const updateSection = useCallback(async (section, newSectionData) => {
-    // 1. Record local save timestamp immediately
-    lastLocalSaves.current[section] = Date.now();
+    const now = Date.now();
+    // 1. Record local save timestamp immediately in ref and localStorage
+    lastLocalSaves.current[section] = now;
+    const storedTimestamps = getStoredTimestamps();
+    storedTimestamps[section] = now;
+    try {
+      localStorage.setItem(LOCAL_TIMESTAMPS_KEY, JSON.stringify(storedTimestamps));
+    } catch {
+      // ignore
+    }
 
     // 2. Direct state update immediately
     setContent((prev) => {
+      let sanitizedData = newSectionData;
+      if (section === 'projects' && Array.isArray(newSectionData)) {
+        sanitizedData = newSectionData.map((p, idx) => {
+          const desc = p.fullDescription || p.description || '';
+          return {
+            ...p,
+            id: p.id || p.slug || `lake-valley-project-${idx + 1}`,
+            slug: p.slug || p.id || `lake-valley-project-${idx + 1}`,
+            description: desc,
+            fullDescription: desc,
+          };
+        });
+      }
+
       const updated = {
         ...prev,
-        [section]: newSectionData,
+        [section]: sanitizedData,
       };
       try {
         localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(updated));
@@ -520,7 +569,6 @@ export function ContentProvider({ children }) {
 
     // 3. Persist to cloud database and backend server
     const res = await updateContentApi({ section, data: newSectionData });
-    // Renew timestamp on completion to protect for another 8 seconds
     lastLocalSaves.current[section] = Date.now();
 
     if (res && res.error) {
@@ -530,12 +578,20 @@ export function ContentProvider({ children }) {
   }, []);
 
   const saveFullContent = useCallback(async (newFullContent) => {
-    setContent(newFullContent);
+    const now = Date.now();
+    const storedTimestamps = getStoredTimestamps();
+    Object.keys(newFullContent).forEach((k) => {
+      storedTimestamps[k] = now;
+      lastLocalSaves.current[k] = now;
+    });
     try {
+      localStorage.setItem(LOCAL_TIMESTAMPS_KEY, JSON.stringify(storedTimestamps));
       localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(newFullContent));
     } catch {
       // ignore
     }
+
+    setContent(newFullContent);
     const res = await updateContentApi(newFullContent);
     return res;
   }, []);
@@ -544,6 +600,8 @@ export function ContentProvider({ children }) {
     setContent(defaultContentState);
     try {
       localStorage.removeItem(LOCAL_CONTENT_KEY);
+      localStorage.removeItem(LOCAL_TIMESTAMPS_KEY);
+      lastLocalSaves.current = {};
       await resetContentApi();
     } catch (err) {
       console.error('Failed to reset content on server:', err);

@@ -14,6 +14,16 @@ import { uploadAnyImageToFirebase, compressAndResizeImage, fileToDataUrl } from 
 
 const ImageContext = createContext(null);
 const LOCAL_STORAGE_KEY = 'lv_managed_images_v1';
+const LOCAL_IMAGE_TIME_KEY = 'lv_images_last_saved_time';
+
+function getStoredImageSaveTime() {
+  try {
+    const raw = localStorage.getItem(LOCAL_IMAGE_TIME_KEY);
+    return raw ? parseInt(raw, 10) : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export function ImageProvider({ children }) {
   const [images, setImages] = useState(() => {
@@ -34,7 +44,7 @@ export function ImageProvider({ children }) {
   });
 
   const [loading, setLoading] = useState(false);
-  const lastLocalSaveTime = useRef(0);
+  const lastLocalSaveTime = useRef(getStoredImageSaveTime());
 
   // Sync to local storage & Firestore whenever images change
   useEffect(() => {
@@ -53,10 +63,22 @@ export function ImageProvider({ children }) {
       try {
         const backendData = await fetchAllImages();
         if (isMounted && backendData && Array.isArray(backendData) && backendData.length > 0) {
-          const now = Date.now();
-          if (now - lastLocalSaveTime.current > 6000) {
-            setImages(backendData);
-          }
+          const localSaved = getStoredImageSaveTime();
+          setImages((prev) => {
+            // If local images have custom additions/edits, merge them cleanly by ID
+            if (localSaved > 0 && Array.isArray(prev) && prev.length > 0) {
+              const localIds = new Set(prev.map((img) => img.id));
+              const combined = [...prev];
+              backendData.forEach((bImg) => {
+                if (!localIds.has(bImg.id)) {
+                  combined.push(bImg);
+                }
+              });
+              syncImagesToFirestore(combined).catch(() => {});
+              return combined;
+            }
+            return backendData;
+          });
         }
       } catch (err) {
         console.warn('Backend image sync warning:', err);
@@ -69,11 +91,20 @@ export function ImageProvider({ children }) {
     // Real-time synchronization across all tabs and browsers
     const unsubscribe = subscribeToImageChanges((liveImages) => {
       if (isMounted && Array.isArray(liveImages) && liveImages.length > 0) {
-        const now = Date.now();
-        // Do not let stale listener snapshots overwrite recent local updates (< 6s)
-        if (now - lastLocalSaveTime.current > 6000) {
-          setImages(liveImages);
-        }
+        setImages((prev) => {
+          const localSaved = getStoredImageSaveTime();
+          if (localSaved > 0 && Array.isArray(prev) && prev.length > 0) {
+            const liveIds = new Set(liveImages.map((img) => img.id));
+            const merged = [...liveImages];
+            prev.forEach((pImg) => {
+              if (!liveIds.has(pImg.id)) {
+                merged.unshift(pImg);
+              }
+            });
+            return merged;
+          }
+          return liveImages;
+        });
       }
     });
 
@@ -98,7 +129,14 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
-    lastLocalSaveTime.current = Date.now();
+    const now = Date.now();
+    lastLocalSaveTime.current = now;
+    try {
+      localStorage.setItem(LOCAL_IMAGE_TIME_KEY, String(now));
+    } catch {
+      // ignore
+    }
+
     let nextImages = [];
     setImages((prev) => {
       nextImages = [newImg, ...prev];
@@ -141,7 +179,14 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
-    lastLocalSaveTime.current = Date.now();
+    const now = Date.now();
+    lastLocalSaveTime.current = now;
+    try {
+      localStorage.setItem(LOCAL_IMAGE_TIME_KEY, String(now));
+    } catch {
+      // ignore
+    }
+
     let nextImages = [];
     setImages((prev) => {
       nextImages = [newImg, ...prev];
@@ -180,7 +225,14 @@ export function ImageProvider({ children }) {
     let updatedRecord = null;
     let nextImages = [];
 
-    lastLocalSaveTime.current = Date.now();
+    const now = Date.now();
+    lastLocalSaveTime.current = now;
+    try {
+      localStorage.setItem(LOCAL_IMAGE_TIME_KEY, String(now));
+    } catch {
+      // ignore
+    }
+
     setImages((prev) => {
       let found = false;
       const updated = prev.map((img) => {
@@ -238,7 +290,14 @@ export function ImageProvider({ children }) {
 
   // Delete image
   const deleteImage = useCallback(async (id) => {
-    lastLocalSaveTime.current = Date.now();
+    const now = Date.now();
+    lastLocalSaveTime.current = now;
+    try {
+      localStorage.setItem(LOCAL_IMAGE_TIME_KEY, String(now));
+    } catch {
+      // ignore
+    }
+
     setImages((prev) => {
       const updated = prev.filter((img) => String(img.id) !== String(id));
       syncImagesToFirestore(updated);
@@ -259,6 +318,12 @@ export function ImageProvider({ children }) {
       title: img.title || img.alt || 'Gallery Image',
       targetSection: img.targetSection || 'gallery',
     }));
+
+    try {
+      localStorage.removeItem(LOCAL_IMAGE_TIME_KEY);
+    } catch {
+      // ignore
+    }
 
     setImages(defaults);
     syncImagesToFirestore(defaults);
