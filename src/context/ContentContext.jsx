@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { fetchContentApi, updateContentApi, resetContentApi, subscribeToContentChanges } from '../api/contentApi';
 
 // Fallback default content in case backend call fails
@@ -416,6 +416,7 @@ export function ContentProvider({ children }) {
     return defaultContentState;
   });
   const [loading, setLoading] = useState(true);
+  const lastLocalSaves = useRef({});
 
   // Sync state to LocalStorage on change
   useEffect(() => {
@@ -432,7 +433,20 @@ export function ContentProvider({ children }) {
       const res = await fetchContentApi();
       if (res && typeof res === 'object' && Object.keys(res).length > 0) {
         setContent((prev) => {
-          const merged = sanitizeProjectsAndHero({ ...prev, ...res });
+          // Merge incoming cloud data while protecting any sections saved in the last 8 seconds
+          const mergedIncoming = { ...prev };
+          const now = Date.now();
+
+          Object.keys(res).forEach((key) => {
+            const lastSave = lastLocalSaves.current[key];
+            if (lastSave && now - lastSave < 8000) {
+              // Section was modified locally within the last 8s, preserve local copy
+              return;
+            }
+            mergedIncoming[key] = res[key];
+          });
+
+          const merged = sanitizeProjectsAndHero(mergedIncoming);
           try {
             localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
           } catch {
@@ -455,10 +469,20 @@ export function ContentProvider({ children }) {
     const unsubscribe = subscribeToContentChanges((liveContent) => {
       if (liveContent && typeof liveContent === 'object' && Object.keys(liveContent).length > 0) {
         setContent((prev) => {
-          const merged = sanitizeProjectsAndHero({
-            ...prev,
-            ...liveContent,
+          const now = Date.now();
+          const mergedIncoming = { ...prev };
+
+          Object.keys(liveContent).forEach((key) => {
+            if (key === 'lastUpdated' || key === 'updatedSection') return;
+            const lastSave = lastLocalSaves.current[key];
+            // If this section was saved locally less than 8 seconds ago, don't overwrite with listener snapshot
+            if (lastSave && now - lastSave < 8000) {
+              return;
+            }
+            mergedIncoming[key] = liveContent[key];
           });
+
+          const merged = sanitizeProjectsAndHero(mergedIncoming);
           try {
             localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
           } catch {
@@ -475,7 +499,10 @@ export function ContentProvider({ children }) {
   }, [loadContent]);
 
   const updateSection = useCallback(async (section, newSectionData) => {
-    // 1. Direct state update immediately
+    // 1. Record local save timestamp immediately
+    lastLocalSaves.current[section] = Date.now();
+
+    // 2. Direct state update immediately
     setContent((prev) => {
       const updated = {
         ...prev,
@@ -489,8 +516,11 @@ export function ContentProvider({ children }) {
       return updated;
     });
 
-    // 2. Persist to cloud database and backend server
+    // 3. Persist to cloud database and backend server
     const res = await updateContentApi({ section, data: newSectionData });
+    // Renew timestamp on completion to protect for another 8 seconds
+    lastLocalSaves.current[section] = Date.now();
+
     if (res && res.error) {
       console.warn(`Cloud database sync note for ${section}:`, res.error);
     }

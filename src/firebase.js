@@ -319,13 +319,31 @@ export async function removeProfileImage() {
   return true;
 }
 
-export async function uploadAnyImageToFirebase(file) {
+export async function uploadAnyImageToFirebase(file, folder = 'admin-uploads') {
   if (!file) return null;
 
+  // 1. Try Firebase Cloud Storage first to get an ultra-lightweight HTTPS CDN URL
   try {
-    const compressed = await compressAndResizeImage(file, 1280, 0.78);
-    const dataUrl = await fileToDataUrl(compressed || file);
-    return dataUrl;
+    const compressedFile = await compressAndResizeImage(file, 1280, 0.80);
+    const safeName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}_${(file.name || 'image.jpg').replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const storageRef = ref(storage, `${folder}/${safeName}`);
+    const uploadResult = await uploadBytes(storageRef, compressedFile || file, {
+      contentType: file.type || 'image/jpeg',
+    });
+    if (uploadResult && uploadResult.ref) {
+      const downloadUrl = await getDownloadURL(uploadResult.ref);
+      if (downloadUrl) {
+        return downloadUrl;
+      }
+    }
+  } catch (storageErr) {
+    console.warn('Firebase Storage upload notice (using lightweight compression fallback):', storageErr?.message);
+  }
+
+  // 2. Fallback: Compact compressed web image (max 720px, 0.65 quality) so it's ~25KB max and never exceeds Firestore limits
+  try {
+    const microCompressed = await compressAndResizeImage(file, 720, 0.65);
+    return await fileToDataUrl(microCompressed || file);
   } catch (err) {
     console.warn('Image processing fallback:', err);
     return await fileToDataUrl(file);

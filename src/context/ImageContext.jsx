@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { galleryImages as defaultGalleryImages, galleryCategories } from '../data/gallery';
 import {
   fetchAllImages,
@@ -34,6 +34,7 @@ export function ImageProvider({ children }) {
   });
 
   const [loading, setLoading] = useState(false);
+  const lastLocalSaveTime = useRef(0);
 
   // Sync to local storage & Firestore whenever images change
   useEffect(() => {
@@ -52,7 +53,10 @@ export function ImageProvider({ children }) {
       try {
         const backendData = await fetchAllImages();
         if (isMounted && backendData && Array.isArray(backendData) && backendData.length > 0) {
-          setImages(backendData);
+          const now = Date.now();
+          if (now - lastLocalSaveTime.current > 6000) {
+            setImages(backendData);
+          }
         }
       } catch (err) {
         console.warn('Backend image sync warning:', err);
@@ -65,7 +69,11 @@ export function ImageProvider({ children }) {
     // Real-time synchronization across all tabs and browsers
     const unsubscribe = subscribeToImageChanges((liveImages) => {
       if (isMounted && Array.isArray(liveImages) && liveImages.length > 0) {
-        setImages(liveImages);
+        const now = Date.now();
+        // Do not let stale listener snapshots overwrite recent local updates (< 6s)
+        if (now - lastLocalSaveTime.current > 6000) {
+          setImages(liveImages);
+        }
       }
     });
 
@@ -109,6 +117,7 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
+    lastLocalSaveTime.current = Date.now();
     let nextImages = [];
     setImages((prev) => {
       nextImages = [newImg, ...prev];
@@ -151,6 +160,7 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
+    lastLocalSaveTime.current = Date.now();
     let nextImages = [];
     setImages((prev) => {
       nextImages = [newImg, ...prev];
@@ -206,6 +216,7 @@ export function ImageProvider({ children }) {
     let updatedRecord = null;
     let nextImages = [];
 
+    lastLocalSaveTime.current = Date.now();
     setImages((prev) => {
       let found = false;
       const updated = prev.map((img) => {
@@ -263,6 +274,7 @@ export function ImageProvider({ children }) {
 
   // Delete image
   const deleteImage = useCallback(async (id) => {
+    lastLocalSaveTime.current = Date.now();
     setImages((prev) => {
       const updated = prev.filter((img) => String(img.id) !== String(id));
       syncImagesToFirestore(updated);
