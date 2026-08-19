@@ -81,16 +81,21 @@ export function ImageProvider({ children }) {
     try {
       uploadedUrl = await uploadAnyImageToFirebase(file, 'gallery');
     } catch (err) {
-      console.warn('Firebase storage upload failed, using file reader:', err);
+      console.warn('Firebase storage upload failed, using compression fallback:', err);
     }
 
     if (!uploadedUrl) {
-      uploadedUrl = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
+      try {
+        const compressed = await compressAndResizeImage(file, 1200, 0.78);
+        uploadedUrl = await fileToDataUrl(compressed || file);
+      } catch {
+        uploadedUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(file);
+        });
+      }
     }
 
     const newImg = {
@@ -104,26 +109,31 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
+    let nextImages = [];
     setImages((prev) => {
-      const updated = [newImg, ...prev];
-      syncImagesToFirestore(updated);
-      return updated;
+      nextImages = [newImg, ...prev];
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextImages));
+      } catch {
+        // ignore
+      }
+      return nextImages;
     });
 
-    // Also attempt backend call if server is running
-    try {
-      await uploadImageFileApi({
-        src: uploadedUrl,
-        filename: file.name,
-        title: newImg.title,
-        category: newImg.category,
-        alt: newImg.alt,
-        span: newImg.span,
-        targetSection: newImg.targetSection,
-      });
-    } catch {
-      // ignore
+    if (nextImages.length > 0) {
+      syncImagesToFirestore(nextImages).catch((e) => console.warn('Firestore sync note:', e));
     }
+
+    // Also attempt backend call if server is running
+    uploadImageFileApi({
+      src: uploadedUrl,
+      filename: file.name,
+      title: newImg.title,
+      category: newImg.category,
+      alt: newImg.alt,
+      span: newImg.span,
+      targetSection: newImg.targetSection,
+    }).catch(() => {});
 
     return newImg;
   }, []);
@@ -141,24 +151,29 @@ export function ImageProvider({ children }) {
       createdAt: new Date().toISOString(),
     };
 
+    let nextImages = [];
     setImages((prev) => {
-      const updated = [newImg, ...prev];
-      syncImagesToFirestore(updated);
-      return updated;
+      nextImages = [newImg, ...prev];
+      try {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(nextImages));
+      } catch {
+        // ignore
+      }
+      return nextImages;
     });
 
-    try {
-      await addImageApi({
-        src,
-        title: newImg.title,
-        category: newImg.category,
-        alt: newImg.alt,
-        span: newImg.span,
-        targetSection: newImg.targetSection,
-      });
-    } catch {
-      // Fallback
+    if (nextImages.length > 0) {
+      syncImagesToFirestore(nextImages).catch((e) => console.warn('Firestore sync note:', e));
     }
+
+    addImageApi({
+      src,
+      title: newImg.title,
+      category: newImg.category,
+      alt: newImg.alt,
+      span: newImg.span,
+      targetSection: newImg.targetSection,
+    }).catch(() => {});
 
     return newImg;
   }, []);

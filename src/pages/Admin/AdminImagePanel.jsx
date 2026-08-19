@@ -702,7 +702,7 @@ export default function AdminImagePanel() {
       }
 
       if (created) {
-        await syncImageToContent(created);
+        syncImageToContent(created).catch((e) => console.warn('Content sync note:', e));
       }
 
       resetUploadForm();
@@ -783,7 +783,7 @@ export default function AdminImagePanel() {
       });
 
       if (updated) {
-        await syncImageToContent(updated);
+        syncImageToContent(updated).catch((e) => console.warn('Content sync note:', e));
       }
 
       addToast('Image details updated successfully!', 'success');
