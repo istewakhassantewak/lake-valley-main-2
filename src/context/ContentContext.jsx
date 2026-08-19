@@ -407,11 +407,19 @@ export function ContentProvider({ children }) {
     try {
       setLoading(true);
       const res = await fetchContentApi();
-      if (res) {
-        setContent((prev) => ({ ...defaultContentState, ...prev, ...res }));
+      if (res && typeof res === 'object' && Object.keys(res).length > 0) {
+        setContent((prev) => {
+          const merged = { ...defaultContentState, ...prev, ...res };
+          try {
+            localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
+          } catch {
+            // ignore
+          }
+          return merged;
+        });
       }
     } catch (err) {
-      console.warn('Failed to load content from backend, keeping local state:', err);
+      console.warn('Failed to load content from cloud, keeping local state:', err);
     } finally {
       setLoading(false);
     }
@@ -423,11 +431,19 @@ export function ContentProvider({ children }) {
     // Subscribe to real-time live content updates across all browsers/devices
     const unsubscribe = subscribeToContentChanges((liveContent) => {
       if (liveContent && typeof liveContent === 'object' && Object.keys(liveContent).length > 0) {
-        setContent((prev) => ({
-          ...defaultContentState,
-          ...prev,
-          ...liveContent,
-        }));
+        setContent((prev) => {
+          const merged = {
+            ...defaultContentState,
+            ...prev,
+            ...liveContent,
+          };
+          try {
+            localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(merged));
+          } catch {
+            // ignore
+          }
+          return merged;
+        });
       }
     });
 
@@ -438,25 +454,35 @@ export function ContentProvider({ children }) {
 
   const updateSection = useCallback(async (section, newSectionData) => {
     // Optimistic state update
-    setContent((prev) => ({
-      ...prev,
-      [section]: newSectionData,
-    }));
+    setContent((prev) => {
+      const updated = {
+        ...prev,
+        [section]: newSectionData,
+      };
+      try {
+        localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
 
-    try {
-      await updateContentApi({ section, data: newSectionData });
-    } catch (err) {
-      console.error(`Failed to sync section ${section} to server:`, err);
+    const res = await updateContentApi({ section, data: newSectionData });
+    if (res && res.error) {
+      console.warn(`Firestore sync note for ${section}:`, res.error);
     }
+    return res;
   }, []);
 
   const saveFullContent = useCallback(async (newFullContent) => {
     setContent(newFullContent);
     try {
-      await updateContentApi(newFullContent);
-    } catch (err) {
-      console.error('Failed to sync full content to server:', err);
+      localStorage.setItem(LOCAL_CONTENT_KEY, JSON.stringify(newFullContent));
+    } catch {
+      // ignore
     }
+    const res = await updateContentApi(newFullContent);
+    return res;
   }, []);
 
   const resetContent = useCallback(async () => {

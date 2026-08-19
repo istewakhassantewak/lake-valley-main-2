@@ -1,14 +1,31 @@
 import { apiGet, apiPut, apiPost } from './client';
-import { db } from '../firebase';
+import { db, ensureFirebaseAuth } from '../firebase';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 
-const SETTINGS_DOC_REF = 'settings';
+const SETTINGS_COLLECTION = 'settings';
 const CONTENT_DOC_ID = 'siteContent';
 
+/**
+ * Deeply sanitizes objects and arrays so they are 100% compliant with Firestore SDK
+ * (removes undefined values, converts NaN, unwraps proxy objects).
+ */
+function sanitizeForFirestore(data) {
+  if (data === undefined) return null;
+  return JSON.parse(
+    JSON.stringify(data, (key, value) => {
+      if (value === undefined) return null;
+      if (typeof value === 'number' && Number.isNaN(value)) return 0;
+      return value;
+    })
+  );
+}
+
 export async function fetchContentApi() {
+  await ensureFirebaseAuth().catch(() => {});
+
   // 1. Try Firestore direct persistent cloud fetch
   try {
-    const docRef = doc(db, SETTINGS_DOC_REF, CONTENT_DOC_ID);
+    const docRef = doc(db, SETTINGS_COLLECTION, CONTENT_DOC_ID);
     const snap = await getDoc(docRef);
     if (snap.exists()) {
       const data = snap.data();
@@ -27,45 +44,78 @@ export async function fetchContentApi() {
       return res?.data || res;
     }
   } catch (err) {
-    console.warn('Backend content fetch failed:', err.message);
+    console.warn('Backend content fetch notice:', err.message);
   }
 
   return null;
 }
 
 export async function updateContentApi(updates) {
+  await ensureFirebaseAuth().catch(() => {});
+
   let payloadToSave = {};
 
   if (updates && updates.section && updates.data !== undefined) {
-    payloadToSave = { [updates.section]: updates.data };
+    payloadToSave = {
+      [updates.section]: updates.data,
+      lastUpdated: new Date().toISOString(),
+      updatedSection: updates.section,
+    };
   } else if (updates && typeof updates === 'object') {
-    payloadToSave = { ...updates };
+    payloadToSave = {
+      ...updates,
+      lastUpdated: new Date().toISOString(),
+    };
   }
+
+  const cleanPayload = sanitizeForFirestore(payloadToSave);
+
+  let firestoreSuccess = false;
+  let firestoreError = null;
 
   // 1. Persist to Firestore cloud database (accessible globally across all browsers)
-  let firestoreSuccess = false;
   try {
-    const docRef = doc(db, SETTINGS_DOC_REF, CONTENT_DOC_ID);
-    await setDoc(docRef, payloadToSave, { merge: true });
+    const docRef = doc(db, SETTINGS_COLLECTION, CONTENT_DOC_ID);
+    await setDoc(docRef, cleanPayload, { merge: true });
     firestoreSuccess = true;
-  } catch (firestoreErr) {
-    console.warn('Firestore content update warning:', firestoreErr.message);
+  } catch (err) {
+    firestoreError = err;
+    console.warn('Firestore content update notice:', err.message);
   }
 
-  // 2. Also try syncing to Node backend server
+  // 2. Also save section-level doc for extra resilience
+  if (updates?.section && updates?.data !== undefined) {
+    try {
+      const sectionDocRef = doc(db, SETTINGS_COLLECTION, updates.section);
+      await setDoc(
+        sectionDocRef,
+        {
+          data: sanitizeForFirestore(updates.data),
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    } catch {
+      // secondary backup
+    }
+  }
+
+  // 3. Also try syncing to Node backend server
   try {
-    await apiPut('/content', updates, { auth: 'optional' });
+    await apiPut('/content', cleanPayload, { auth: 'optional' });
   } catch {
     // Backend may not be running on static deployments
   }
 
-  return { success: true, firestore: firestoreSuccess };
+  return { success: true, firestore: firestoreSuccess, error: firestoreError?.message };
 }
 
 export async function resetContentApi() {
+  await ensureFirebaseAuth().catch(() => {});
+
   try {
-    const docRef = doc(db, SETTINGS_DOC_REF, CONTENT_DOC_ID);
-    await setDoc(docRef, {});
+    const docRef = doc(db, SETTINGS_COLLECTION, CONTENT_DOC_ID);
+    await setDoc(docRef, { resetAt: new Date().toISOString() });
   } catch (err) {
     console.warn('Firestore content reset warning:', err.message);
   }
@@ -84,7 +134,7 @@ export async function resetContentApi() {
  */
 export function subscribeToContentChanges(onContentUpdate) {
   try {
-    const docRef = doc(db, SETTINGS_DOC_REF, CONTENT_DOC_ID);
+    const docRef = doc(db, SETTINGS_COLLECTION, CONTENT_DOC_ID);
     const unsubscribe = onSnapshot(
       docRef,
       (snapshot) => {
@@ -105,4 +155,5 @@ export function subscribeToContentChanges(onContentUpdate) {
     return () => {};
   }
 }
+
 

@@ -7,6 +7,7 @@ import {
   getRedirectResult,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInAnonymously,
   updateProfile,
   signOut,
   onAuthStateChanged,
@@ -44,6 +45,32 @@ export const storage = getStorage(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+/**
+ * Ensures the client has an active Firebase Auth session (authenticated or anonymous).
+ * This enables seamless Firestore database reading and writing across all browsers.
+ */
+let authPromise = null;
+export async function ensureFirebaseAuth() {
+  if (auth.currentUser) return auth.currentUser;
+  if (!authPromise) {
+    authPromise = (async () => {
+      try {
+        const cred = await signInAnonymously(auth);
+        return cred.user;
+      } catch (err) {
+        // If anonymous auth is not enabled in Firebase Console, fallback silently
+        return auth.currentUser || null;
+      } finally {
+        authPromise = null;
+      }
+    })();
+  }
+  return authPromise;
+}
+
+// Auto-initialize auth session in the background
+ensureFirebaseAuth().catch(() => {});
 
 // Check redirect result on load
 getRedirectResult(auth).catch((err) => {
