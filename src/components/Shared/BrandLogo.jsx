@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react';
 import { useContent } from '../../context/ContentContext';
 import { cn } from '../../utils/helpers';
 import { Trees } from 'lucide-react';
+import defaultBrandLogo from '../../assets/logo.png';
 
 /**
  * Robust BrandLogo component with multi-level fallback cascade
- * Ensures the Lake Valley Flower City logo is always displayed flawlessly.
+ * Imports bundled brand asset directly for 100% reliability on Vercel, Netlify & Production.
  */
 export default function BrandLogo({
   src,
   alt,
-  className = 'h-12 md:h-16 w-auto',
+  className = 'h-16 w-auto',
   containerClassName = '',
   showTagline = false,
   variant = 'default', // 'default' | 'light' | 'dark'
@@ -19,26 +20,25 @@ export default function BrandLogo({
   const [fallbackIndex, setFallbackIndex] = useState(0);
   const [hasFailedAll, setHasFailedAll] = useState(false);
 
-  const rawLogo = src || site?.logo || '/logo.png';
+  const rawLogo = src || (site?.logo && site.logo !== '/logo.png' ? site.logo : defaultBrandLogo);
 
   // Normalization to ensure safe URL encoding
   const cleanUrl = (url) => {
-    if (!url) return '/logo.png';
-    if (typeof url === 'string' && url.includes(' ') && !url.startsWith('data:')) {
+    if (!url) return defaultBrandLogo;
+    if (typeof url === 'string' && url.includes(' ') && !url.startsWith('data:') && !url.startsWith('blob:')) {
       return encodeURI(url);
     }
     return url;
   };
 
   const fallbackSources = [
-    '/Lake%20Valley%20Flower%20City%20Logo_Alpha-.png',
-    '/Lake Valley Flower City Logo_Alpha-.png',
+    defaultBrandLogo,
     cleanUrl(rawLogo),
     '/logo.png',
     '/logo-transparent.png',
+    '/Lake%20Valley%20Flower%20City%20Logo_Alpha-.png',
     '/logo.svg',
     '/Lake%20Valley%20Logo.png',
-    '/Lake%20Valley%20Logo%20Transparent.png',
   ];
 
   // Reset fallback index if rawLogo prop changes
@@ -55,7 +55,7 @@ export default function BrandLogo({
     }
   };
 
-  const currentSrc = fallbackSources[fallbackIndex] || '/logo.png';
+  const currentSrc = fallbackSources[fallbackIndex] || defaultBrandLogo;
   const logoAlt = alt || site?.siteName || 'Lake Valley Flower City';
 
   if (hasFailedAll) {

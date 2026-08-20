@@ -1039,15 +1039,15 @@ export default function AdminImagePanel() {
               <Database className="w-3.5 h-3.5 text-slate-500" /> Restore
             </button>
 
-            <Link
-              to="/"
+            <a
+              href="https://lake-valley-main-2.vercel.app/"
               target="_blank"
               rel="noopener noreferrer"
               className="px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-emerald-brand font-medium text-xs transition-all flex items-center gap-1.5 shadow-sm"
             >
               <Globe className="w-3.5 h-3.5 text-emerald-brand" /> Live Site
               <ExternalLink className="w-3 h-3 text-slate-400" />
-            </Link>
+            </a>
 
             <button
               type="button"
