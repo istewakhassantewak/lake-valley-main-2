@@ -23,7 +23,7 @@
     "helmet": "^8.0.0",
     "lucide-react": "^1.28.0",
     "mongoose": "^8.6.0",
-    "nodemailer": "^6.9.14",
+    "nodemailer": "^9.0.5",
     "react": "^19.2.8",
     "react-countup": "^6.5.3",
     "react-dom": "^19.2.8",
